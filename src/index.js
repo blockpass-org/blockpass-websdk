@@ -1,5 +1,5 @@
 // @flow
 
-import BpSDK from './bpSdk'
+import WebSDK from './WebSdk'
 
-export default BpSDK;
+export {WebSDK};

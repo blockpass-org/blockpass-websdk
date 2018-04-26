@@ -1,7 +1,7 @@
 //@flow
 import EventEmitter from "events";
 
-class BpSDK extends EventEmitter {
+class WebSDK extends EventEmitter {
     baseUrl: string;
     clientId: string;
     secretId: string;
@@ -95,4 +95,4 @@ class BpSDK extends EventEmitter {
     }
 }
 
-export default BpSDK
+export default WebSDK

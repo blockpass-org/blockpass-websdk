@@ -4,7 +4,7 @@
   "description": "Blockpass Sdk for webbrowser",
   "license": "MIT",
   "repository": "diegohaz/nod",
-  "main": "dist/index.js",
+  "main": "dist/node/index.js",
   "engines": {
     "node": ">=6"
   },
@@ -21,7 +21,10 @@
     "clean": "rimraf dist",
     "flowbuild": "flow-copy-source src dist",
     "prebuild": "npm run docs && npm run clean && npm run flowbuild",
-    "build": "babel src -d dist",
+    "build": "babel src -d dist/node && npm run browser-build",
+    "browser-build": "mkdir -p dist/browser && npm run browser-build-dev && npm run browser-build-prod",
+    "browser-build-dev": "browserify dist/node/index.js --standalone Blockpass > dist/browser/blockpass.dev.js",
+    "browser-build-prod": "browserify dist/node/index.js --standalone Blockpass | uglifyjs -cm > dist/browser/blockpass.min.js",
     "watch": "npm-watch",
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
@@ -37,15 +40,19 @@
   "jest": {
     "testEnvironment": "jsdom"
   },
-  "dependencies": {},
+  "dependencies": {
+    "babel-runtime": "^6.26.0"
+  },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.2",
     "babel-jest": "^22.4.3",
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-flow": "^6.23.0",
     "babel-preset-stage-2": "^6.24.1",
+    "browserify": "^16.2.0",
     "documentation": "^6.1.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
@@ -60,6 +67,7 @@
     "npm-watch": "^0.3.0",
     "opn-cli": "^3.1.0",
     "prettier": "^1.11.1",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "uglifyjs": "^2.4.11"
   }
 }
