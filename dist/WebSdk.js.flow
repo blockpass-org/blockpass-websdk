@@ -1,6 +1,9 @@
 //@flow
 import EventEmitter from "events";
 
+/**
+ * Blockpass WebSDK
+ */
 class WebSDK extends EventEmitter {
     baseUrl: string;
     clientId: string;
@@ -8,7 +11,11 @@ class WebSDK extends EventEmitter {
     refreshRateMs: number;
     timeOutTicket: any;
 
-    constructor(configData : {
+    /**
+     * constructor
+     * @param {...ConstructorParams} configData
+     */
+    constructor(configData: {
         baseUrl: string,
         clientId: string,
         secretId: string,
@@ -27,6 +34,12 @@ class WebSDK extends EventEmitter {
         this.refreshRateMs = refreshRateMs || 5000
     }
 
+    /**
+     * Generate new SSO code and monitor status
+     * @fire WebSDK#code-refresh
+     * @fire WebSDK#sso-processing
+     * @fire WebSDK#sso-complete
+     */
     async generateSSOData() {
         const { baseUrl, clientId, secretId } = this;
         try {
@@ -52,7 +65,7 @@ class WebSDK extends EventEmitter {
         }
     }
 
-    async _waitingLoginComplete(sessionId:string) : any{
+    async _waitingLoginComplete(sessionId: string): any {
         if (this.timeOutTicket) {
             clearInterval(this.timeOutTicket);
             this.timeOutTicket = null;
@@ -60,7 +73,7 @@ class WebSDK extends EventEmitter {
 
         this.timeOutTicket = setInterval(async _ => {
             const response = await this._refreshSessionTicket(sessionId);
-            
+
             if (!response)
                 return;
 
@@ -76,19 +89,23 @@ class WebSDK extends EventEmitter {
         }, this.refreshRateMs)
     }
 
-    async _refreshSessionTicket(sessionId:string) : any{
-        const { baseUrl } = this;
-        const response = await this._fetchAsync(`${baseUrl}/api/v0.3/service/register/${sessionId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        console.log('refresh', sessionId, response)
-        return response;
+    async _refreshSessionTicket(sessionId: string): any {
+        try {
+            const { baseUrl } = this;
+            const response = await this._fetchAsync(`${baseUrl}/api/v0.3/service/register/${sessionId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            console.log('refresh', sessionId, response)
+            return response;
+        } catch (ex) {
+            return null;
+        }
     }
 
-    async _fetchAsync(url:string, configs:Object) : Promise<any>{
+    async _fetchAsync(url: string, configs: Object): Promise<any> {
         const response = await fetch(url, configs);
         if (response.ok)
             return await response.json()
@@ -96,3 +113,40 @@ class WebSDK extends EventEmitter {
 }
 
 export default WebSDK
+
+/**
+ * ---------------------------------------------------------- 
+ */
+
+/**
+ * @typedef {object} ConstructorParams
+ * @property {string} baseUrl - Blockpass url.
+ * @property {string} clientId - Blockpass ClientId.
+ * @property {string} secretId - Blockpass SecretId.
+ * @property {number} refreshRateMs - Refreshrate in miliseconds (default-5000).
+ */
+
+/**
+ * Session code generated. Session code is one time use. Life cycles (created -> processing -> success|failed)
+ * Client must refresh code after sso failed / timeout
+ * @event WebSDK#code-refresh
+ * @type {object}
+ * @property {string} session - sessionID
+ */
+
+ /**
+ * Session code switch to processing
+ * @event WebSDK#sso-processing
+ * @type {object}
+ * @property {string} status - status of session code
+ */
+
+ /**
+ * Session code switch to processing
+ * @event WebSDK#sso-complete
+ * @type {object}
+ * @property {string} status - status of session code (success|failed)
+ * @property {object} extraData - extraData
+ * @property {string} extraData.sessionData - session code
+ * @property {object} extraData.extraData - services extraData
+ */

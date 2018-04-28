@@ -42,9 +42,16 @@ var _events2 = _interopRequireDefault(_events);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/**
+ * Blockpass WebSDK
+ */
 var WebSDK = function (_EventEmitter) {
     (0, _inherits3.default)(WebSDK, _EventEmitter);
 
+    /**
+     * constructor
+     * @param {...ConstructorParams} configData
+     */
     function WebSDK(configData) {
         (0, _classCallCheck3.default)(this, WebSDK);
 
@@ -64,6 +71,14 @@ var WebSDK = function (_EventEmitter) {
         _this.refreshRateMs = refreshRateMs || 5000;
         return _this;
     }
+
+    /**
+     * Generate new SSO code and monitor status
+     * @fire WebSDK#code-refresh
+     * @fire WebSDK#sso-processing
+     * @fire WebSDK#sso-complete
+     */
+
 
     (0, _createClass3.default)(WebSDK, [{
         key: 'generateSSOData',
@@ -198,8 +213,9 @@ var WebSDK = function (_EventEmitter) {
                     while (1) {
                         switch (_context4.prev = _context4.next) {
                             case 0:
+                                _context4.prev = 0;
                                 baseUrl = this.baseUrl;
-                                _context4.next = 3;
+                                _context4.next = 4;
                                 return this._fetchAsync(baseUrl + '/api/v0.3/service/register/' + sessionId, {
                                     method: 'GET',
                                     headers: {
@@ -207,18 +223,23 @@ var WebSDK = function (_EventEmitter) {
                                     }
                                 });
 
-                            case 3:
+                            case 4:
                                 response = _context4.sent;
 
                                 console.log('refresh', sessionId, response);
                                 return _context4.abrupt('return', response);
 
-                            case 6:
+                            case 9:
+                                _context4.prev = 9;
+                                _context4.t0 = _context4['catch'](0);
+                                return _context4.abrupt('return', null);
+
+                            case 12:
                             case 'end':
                                 return _context4.stop();
                         }
                     }
-                }, _callee4, this);
+                }, _callee4, this, [[0, 9]]);
             }));
 
             function _refreshSessionTicket(_x3) {
@@ -272,3 +293,40 @@ var WebSDK = function (_EventEmitter) {
 }(_events2.default);
 
 exports.default = WebSDK;
+
+/**
+ * ---------------------------------------------------------- 
+ */
+
+/**
+ * @typedef {object} ConstructorParams
+ * @property {string} baseUrl - Blockpass url.
+ * @property {string} clientId - Blockpass ClientId.
+ * @property {string} secretId - Blockpass SecretId.
+ * @property {number} refreshRateMs - Refreshrate in miliseconds (default-5000).
+ */
+
+/**
+ * Session code generated. Session code is one time use. Life cycles (created -> processing -> success|failed)
+ * Client must refresh code after sso failed / timeout
+ * @event WebSDK#code-refresh
+ * @type {object}
+ * @property {string} session - sessionID
+ */
+
+/**
+* Session code switch to processing
+* @event WebSDK#sso-processing
+* @type {object}
+* @property {string} status - status of session code
+*/
+
+/**
+* Session code switch to processing
+* @event WebSDK#sso-complete
+* @type {object}
+* @property {string} status - status of session code (success|failed)
+* @property {object} extraData - extraData
+* @property {string} extraData.sessionData - session code
+* @property {object} extraData.extraData - services extraData
+*/
