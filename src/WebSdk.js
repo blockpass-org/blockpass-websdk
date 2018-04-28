@@ -122,13 +122,14 @@ export default WebSDK;
 /**
  * @typedef {object} ConstructorParams
  * @property {string} baseUrl - Blockpass url.
- * @property {string} clientId - Blockpass ClientId.
- * @property {string} secretId - Blockpass SecretId.
- * @property {number} refreshRateMs - Refreshrate in miliseconds (default-5000).
+ * @property {string} clientId - Blockpass ClientId (obtain when register with Blockpass platform). 
+ * @property {string} secretId - Blockpass SecretId (obtain when register with Blockpass platform). 
+ * @property {number} refreshRateMs - Refresh rate in miliseconds (default-5000). 
+ 
  */
 
 /**
- * Session code generated. Session code is one time use. Life cycles (created -> processing -> success|failed)
+ * Generated session code, can only be used once. Life cycles (created -> processing -> success|failed) 
  * Client must refresh code after sso failed / timeout
  * @event WebSDK#code-refresh
  * @type {object}
@@ -149,5 +150,5 @@ export default WebSDK;
  * @property {string} status - status of session code (success|failed)
  * @property {object} extraData - extraData
  * @property {string} extraData.sessionData - session code
- * @property {object} extraData.extraData - services extraData
+ * @property {object} extraData.extraData - Services' extra data 
  */
