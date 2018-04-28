@@ -1,12 +1,12 @@
 # Blockpass SdkWeb
 
-## Structures
+## Structure
 This packages contains:
 - ES6 source code `src/`
 - Transpiler for node (below 6) `dist/node`
 - Transpiler for web-browser `dist/browser`
 
-## Getting Start (browser)
+## Getting started (browser)
 
 1. Add blockpass-web package via `<script>` tag
 ``` html
@@ -28,13 +28,14 @@ sdk = new window.Blockpass.WebSDK({
 })
 ```
 
-3. Subcrible event handler
+3. Subscribe to SDK events
 ``` javascript
 
 function onBlockpassCodeRefresh(params) {
     // session code ready to use now
 
-    // demo qrcode images ( using demo online qrserver ). For production don't use this api
+    // demo qrcode images ( using demo online qrserver ). 
+    // DON'T USE THIS FOR YOUR SERVICE
     document.getElementById('step1-qr').src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify(params)}`
 }
 
@@ -110,13 +111,13 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 **Properties**
 
 -   `baseUrl` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass url.
--   `clientId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass ClientId.
--   `secretId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass SecretId.
--   `refreshRateMs` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Refreshrate in miliseconds (default-5000).
+-   `clientId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass ClientId (obtain when register with Blockpass platform).
+-   `secretId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass SecretId (obtain when register with Blockpass platform).
+-   `refreshRateMs` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Refresh rate in miliseconds (default-5000).
 
 ### WebSDK#code-refresh
 
-Session code generated. Session code is one time use. Life cycles (created -> processing -> success|failed)
+Generated session code, can only be used once. Life cycles (created -> processing -> success|failed)
 Client must refresh code after sso failed / timeout
 
 Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
@@ -146,7 +147,7 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 -   `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code (success|failed)
 -   `extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** extraData
     -   `extraData.sessionData` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** session code
-    -   `extraData.extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** services extraData
+    -   `extraData.extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Services' extra data
 
 ## License
 
