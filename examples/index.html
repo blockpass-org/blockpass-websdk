@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="../dist/browser/blockpass.dev.js"></script>
+</head>
+
+<body>
+
+    <div class="jumbotron text-center">
+        <h1>Demo WebPage</h1>
+        <p>Thanks Boostrap!</p>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <h3 style="text-align: center" >Session Code</h3>
+                <h4>Cli params: </h4>
+                <p id="step1-content"></p>
+
+                <h4>Mobile QR: </h4>
+                <p>
+                    <img id="step1-qr" />
+                </p>
+            </div>
+            <div class="col-sm-4">
+                <h3 style="text-align: center" >Ticket Status</h3>
+                <p id="step2-content" style="text-align: center" >created</p>
+            </div>
+            <div class="col-sm-4">
+                <h3 style="text-align: center" >Result</h3>
+                <p id="step3-content"></p>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const clientId = '3rd_service_demo'
+        const secretId = '3rd_service_demo'
+        const baseUrl = 'http://blockpass.local:1339'
+
+        /** Blockpass SSO session generated
+         *  @param {Object} params - session object
+         *  @param {String} params.session - session code
+         */
+        function onBlockpassCodeRefresh(params) {
+            document.getElementById('step1-content').innerHTML = `3rd-sso ${clientId} ${params.session}`
+            document.getElementById('step1-qr').src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify(params)}`
+        }
+
+        /** Blockpass SSO session status
+         *  @param {Object} params - session object
+         *  @param {String} params.status - status (processing | complete | created)
+         */
+        function onBlockpassProcessing(params) {
+            // session code invalid
+            document.getElementById('step1-content').innerHTML = ``
+            document.getElementById('step1-qr').src = ``
+
+            document.getElementById('step2-content').innerHTML = 'processing'
+        }
+        
+        /** Blockpass SSO result
+         *  @param {Object} params - session object
+         *  @param {String} params.status - status (sucess|failed)
+         *  @param {Object} params.extraData - Extra data
+         *  @param {Object} params.extraData.sessionData - Last session code
+         *  @param {Object} params.extraData.extraData - 3rd services custom data
+         */
+        function onBlockpassSSoResult(params) {
+            // session code invalid
+            document.getElementById('step1-content').innerHTML = ``
+            document.getElementById('step1-qr').src = ``
+
+            document.getElementById('step2-content').innerHTML = 'complete'
+            document.getElementById('step3-content').innerHTML = `<pre>${JSON.stringify(params, null, 2)}</pre>`
+        }
+
+        let sdk = null;
+        window.addEventListener('load', _ => {
+            sdk = new window.Blockpass.WebSDK({
+                clientId,
+                secretId,
+                baseUrl,
+                refreshRateMs: 1000
+            })
+
+            sdk.on('code-refresh', onBlockpassCodeRefresh)
+            sdk.on('sso-processing', onBlockpassProcessing)
+            sdk.on('sso-complete', onBlockpassSSoResult)
+            
+            // refresh new sso code
+            sdk.generateSSOData();
+        })
+
+    </script>
+
+</body>
+
+</html>
