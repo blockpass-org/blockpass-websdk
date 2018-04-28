@@ -1,6 +1,67 @@
 # Blockpass SdkWeb
 
-## Commands
+## Structures
+This packages contains:
+- ES6 source code `src/`
+- Transpiler for node (below 6) `dist/node`
+- Transpiler for web-browser `dist/browser`
+
+## Getting Start (browser)
+
+1. Add blockpass-web package via `<script>` tag
+``` html
+    <script src="../dist/browser/blockpass.dev.js"></script>
+```
+
+2. Init SDK
+``` javascript
+
+const clientId = '...'
+const secretId = '...'
+const baseUrl = '...'
+
+sdk = new window.Blockpass.WebSDK({
+    clientId,
+    secretId,
+    baseUrl,
+    refreshRateMs: 1000
+})
+```
+
+3. Subcrible event handler
+``` javascript
+
+function onBlockpassCodeRefresh(params) {
+    // session code ready to use now
+
+    // demo qrcode images ( using demo online qrserver ). For production don't use this api
+    document.getElementById('step1-qr').src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify(params)}`
+}
+
+function onBlockpassProcessing(params) {
+    // session code invalid from now
+    // Show loading indicator
+}
+
+function onBlockpassSSoResult(params) {
+    // sso complete. handle your logic here
+}
+
+sdk.on('code-refresh', onBlockpassCodeRefresh)
+sdk.on('sso-processing', onBlockpassProcessing)
+sdk.on('sso-complete', onBlockpassSSoResult)
+
+// request for new sso code
+sdk.generateSSOData();
+```
+
+## Development Instalation
+
+```sh
+$ yarn install
+```
+
+## Development Commands
 
 ```sh
 $ npm test # run tests with Jest
@@ -9,9 +70,6 @@ $ npm run lint # lint code
 $ npm run docs # generate docs
 $ npm run build # generate docs and transpile code
 $ npm run watch # watch code changes and run scripts automatically
-$ npm run patch # bump patch version and publish to npm e.g. 0.0.1
-$ npm run minor # bump minor version and publish to npm e.g. 0.1.0
-$ npm run major # bump major version and publish to npm e.g. 1.0.0
 ```
 
 ## API

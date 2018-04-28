@@ -1,5 +1,5 @@
 // @flow
 
-import WebSDK from './WebSdk'
+import WebSDK from "./WebSdk";
 
-export {WebSDK};
+export { WebSDK };
