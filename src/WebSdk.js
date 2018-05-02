@@ -7,7 +7,6 @@ import EventEmitter from "events";
 class WebSDK extends EventEmitter {
   baseUrl: string;
   clientId: string;
-  secretId: string;
   refreshRateMs: number;
   timeOutTicket: any;
 
@@ -18,19 +17,17 @@ class WebSDK extends EventEmitter {
   constructor(configData: {
     baseUrl: string,
     clientId: string,
-    secretId: string,
     refreshRateMs?: number
   }) {
     super();
 
-    const { baseUrl, clientId, secretId, refreshRateMs } = configData || {};
+    const { baseUrl, clientId, refreshRateMs } = configData || {};
 
-    if (!baseUrl || !clientId || !secretId)
+    if (!baseUrl || !clientId)
       throw new Error("Missing critical config paramaters");
 
     this.baseUrl = baseUrl;
     this.clientId = clientId;
-    this.secretId = secretId;
     this.refreshRateMs = refreshRateMs || 5000;
   }
 
@@ -41,7 +38,7 @@ class WebSDK extends EventEmitter {
    * @fire WebSDK#sso-complete
    */
   async generateSSOData() {
-    const { baseUrl, clientId, secretId } = this;
+    const { baseUrl, clientId } = this;
     try {
       const response = await this._fetchAsync(
         `${baseUrl}/api/v0.3/service/register/${clientId}`,
@@ -49,10 +46,7 @@ class WebSDK extends EventEmitter {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            client_secret: secretId
-          })
+          }
         }
       );
 
@@ -123,7 +117,6 @@ export default WebSDK;
  * @typedef {object} ConstructorParams
  * @property {string} baseUrl - Blockpass url.
  * @property {string} clientId - Blockpass ClientId (obtain when register with Blockpass platform). 
- * @property {string} secretId - Blockpass SecretId (obtain when register with Blockpass platform). 
  * @property {number} refreshRateMs - Refresh rate in miliseconds (default-5000). 
  
  */

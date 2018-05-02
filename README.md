@@ -1,36 +1,37 @@
 # Blockpass SdkWeb
 
 ## Structure
+
 This packages contains:
-- ES6 source code `src/`
-- Transpiler for node (below 6) `dist/node`
-- Transpiler for web-browser `dist/browser`
+
+-   ES6 source code `src/`
+-   Transpiler for node (below 6) `dist/node`
+-   Transpiler for web-browser `dist/browser`
 
 ## Getting started (browser)
 
-1. Add blockpass-web package via `<script>` tag
-``` html
+1.  Add blockpass-web package via `<script>` tag
+
+```html
     <script src="../dist/browser/blockpass.dev.js"></script>
 ```
 
-2. Init SDK
-``` javascript
+2.  Init SDK
 
+```javascript
 const clientId = '...'
-const secretId = '...'
 const baseUrl = '...'
 
 sdk = new window.Blockpass.WebSDK({
     clientId,
-    secretId,
     baseUrl,
     refreshRateMs: 1000
 })
 ```
 
-3. Subscribe to SDK events
-``` javascript
+3.  Subscribe to SDK events
 
+```javascript
 function onBlockpassCodeRefresh(params) {
     // session code ready to use now
 
@@ -112,12 +113,11 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 -   `baseUrl` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass url.
 -   `clientId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass ClientId (obtain when register with Blockpass platform).
--   `secretId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass SecretId (obtain when register with Blockpass platform).
 -   `refreshRateMs` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Refresh rate in miliseconds (default-5000).
 
 ### WebSDK#code-refresh
 
-Generated session code, can only be used once. Life cycles (created -> processing -> success|failed)
+Generated session code, can only be used once. Life cycles (created -> processing -> success|failed) 
 Client must refresh code after sso failed / timeout
 
 Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)

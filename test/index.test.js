@@ -6,7 +6,6 @@ global.fetch = nodeFetch;
 
 const BASE_URL = "http://unit-test";
 const CLIENT_ID = "testClientId";
-const SECRET_ID = "testSecretId";
 
 describe("basic-features", () => {
   it("generate-sessioncode", done => {
@@ -15,13 +14,12 @@ describe("basic-features", () => {
     const webSdk = new WebSDK({
       baseUrl: BASE_URL,
       clientId: CLIENT_ID,
-      secretId: SECRET_ID
     });
 
     const mockRequest = nork(BASE_URL)
       .post(
         `/api/v0.3/service/register/${CLIENT_ID}`,
-        body => body.client_secret === SECRET_ID
+        body => true
       )
       .reply(200, { session: FAKE_SESSION_ID });
 
@@ -39,7 +37,6 @@ describe("basic-features", () => {
     const webSdk = new WebSDK({
       baseUrl: BASE_URL,
       clientId: CLIENT_ID,
-      secretId: SECRET_ID,
       refreshRateMs: 10
     });
 
@@ -47,7 +44,7 @@ describe("basic-features", () => {
     const mockRequest = nork(BASE_URL)
       .post(
         `/api/v0.3/service/register/${CLIENT_ID}`,
-        body => body.client_secret === SECRET_ID
+        body => true
       )
       .reply(200, { session: FAKE_SESSION_ID });
 
@@ -96,7 +93,6 @@ describe("basic-features", () => {
     const webSdk = new WebSDK({
       baseUrl: BASE_URL,
       clientId: CLIENT_ID,
-      secretId: SECRET_ID,
       refreshRateMs: 10
     });
 
@@ -104,7 +100,7 @@ describe("basic-features", () => {
     const mockRequest = nork(BASE_URL)
       .post(
         `/api/v0.3/service/register/${CLIENT_ID}`,
-        body => body.client_secret === SECRET_ID
+        body => true
       )
       .reply(200, { session: FAKE_SESSION_ID });
 
@@ -156,7 +152,6 @@ describe("basic-features", () => {
     const webSdk = new WebSDK({
       baseUrl: BASE_URL,
       clientId: CLIENT_ID,
-      secretId: SECRET_ID,
       refreshRateMs: 10
     });
 
@@ -167,7 +162,7 @@ describe("basic-features", () => {
     const mockRequest = nork(BASE_URL)
       .post(
         `/api/v0.3/service/register/${CLIENT_ID}`,
-        body => body.client_secret === SECRET_ID
+        body => true
       )
       .twice()
       .reply(200, _ => ({
