@@ -151,4 +151,4 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 ## License
 
-MIT
+ApacheV2
