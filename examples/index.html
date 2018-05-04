@@ -53,7 +53,10 @@
          */
         function onBlockpassCodeRefresh(params) {
             document.getElementById('step1-content').innerHTML = `3rd-sso ${clientId} ${params.session}`
-            document.getElementById('step1-qr').src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify(params)}`
+            document.getElementById('step1-qr').src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify({
+                clientId,
+                session: params.session
+            })}`
         }
 
         /** Blockpass SSO session status
