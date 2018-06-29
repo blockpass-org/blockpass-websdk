@@ -37,7 +37,10 @@ function onBlockpassCodeRefresh(params) {
 
     // demo qrcode images ( using demo online qrserver ). 
     // DON'T USE THIS FOR YOUR SERVICE
-    document.getElementById('step1-qr').src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify(params)}`
+    document.getElementById('step1-qr').src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify({
+        clientId: '...',
+        session: params.session
+    })}`
 }
 
 function onBlockpassProcessing(params) {

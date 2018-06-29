@@ -94,7 +94,6 @@ class WebSDK extends EventEmitter {
           }
         }
       );
-      console.log("refresh", sessionId, response);
       return response;
     } catch (ex) {
       return null;
