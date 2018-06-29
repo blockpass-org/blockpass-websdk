@@ -217,21 +217,19 @@ var WebSDK = function (_EventEmitter) {
 
               case 4:
                 response = _context4.sent;
-
-                console.log("refresh", sessionId, response);
                 return _context4.abrupt("return", response);
 
-              case 9:
-                _context4.prev = 9;
+              case 8:
+                _context4.prev = 8;
                 _context4.t0 = _context4["catch"](0);
                 return _context4.abrupt("return", null);
 
-              case 12:
+              case 11:
               case "end":
                 return _context4.stop();
             }
           }
-        }, _callee4, this, [[0, 9]]);
+        }, _callee4, this, [[0, 8]]);
       }));
 
       function _refreshSessionTicket(_x3) {
