@@ -13,14 +13,11 @@ describe("basic-features", () => {
 
     const webSdk = new WebSDK({
       baseUrl: BASE_URL,
-      clientId: CLIENT_ID,
+      clientId: CLIENT_ID
     });
 
     const mockRequest = nork(BASE_URL)
-      .post(
-        `/api/v0.3/service/register/${CLIENT_ID}`,
-        body => true
-      )
+      .post(`/api/v0.3/service/register/${CLIENT_ID}`, body => true)
       .reply(200, { session: FAKE_SESSION_ID });
 
     webSdk.on("code-refresh", codeResponse => {
@@ -43,17 +40,14 @@ describe("basic-features", () => {
 
     // mock code generate
     const mockRequest = nork(BASE_URL)
-      .post(
-        `/api/v0.3/service/register/${CLIENT_ID}`,
-        body => true
-      )
+      .post(`/api/v0.3/service/register/${CLIENT_ID}`, body => true)
       .reply(200, { session: FAKE_SESSION_ID });
 
     // 1st time => processing
     let refreshRequest = nork(BASE_URL)
       .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID}`)
       .once()
-      .reply(200, { status: 'success', data: { status: "processing" } });
+      .reply(200, { status: "success", data: { status: "processing" } });
 
     // callback code-refresh
     webSdk.on("code-refresh", codeResponse => {
@@ -103,17 +97,14 @@ describe("basic-features", () => {
 
     // mock code generate
     const mockRequest = nork(BASE_URL)
-      .post(
-        `/api/v0.3/service/register/${CLIENT_ID}`,
-        body => true
-      )
+      .post(`/api/v0.3/service/register/${CLIENT_ID}`, body => true)
       .reply(200, { session: FAKE_SESSION_ID });
 
     // 1st time => processing
     let refreshRequest = nork(BASE_URL)
       .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID}`)
       .once()
-      .reply(200, { status: 'success' ,data: { status: "processing" }});
+      .reply(200, { status: "success", data: { status: "processing" } });
 
     // callback code-refresh
     webSdk.on("code-refresh", codeResponse => {
@@ -169,10 +160,7 @@ describe("basic-features", () => {
 
     // mock code generate
     const mockRequest = nork(BASE_URL)
-      .post(
-        `/api/v0.3/service/register/${CLIENT_ID}`,
-        body => true
-      )
+      .post(`/api/v0.3/service/register/${CLIENT_ID}`, body => true)
       .twice()
       .reply(200, _ => ({
         session: codeResponseSequence[codeResponseCount++]
@@ -182,7 +170,7 @@ describe("basic-features", () => {
     let refreshRequest = nork(BASE_URL)
       .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID_NEW}`)
       .once()
-      .reply(200, { status: "success", data: { status: "processing" }});
+      .reply(200, { status: "success", data: { status: "processing" } });
 
     // callback code-refresh
     let count = 0;
@@ -201,7 +189,7 @@ describe("basic-features", () => {
         .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID_NEW}`)
         .once()
         .reply(200, {
-          status: 'success',
+          status: "success",
           data: {
             status: "success",
             extraData: {
@@ -236,24 +224,21 @@ describe("basic-features", () => {
     const webSdk = new WebSDK({
       baseUrl: BASE_URL,
       clientId: CLIENT_ID,
-      env: 'local'
+      env: "local"
     });
 
     const mockRequest = nork(BASE_URL)
-      .post(
-        `/api/v0.3/service/register/${CLIENT_ID}`,
-        body => true
-      )
+      .post(`/api/v0.3/service/register/${CLIENT_ID}`, body => true)
       .reply(200, { session: FAKE_SESSION_ID });
 
     webSdk.generateSSOData();
 
     webSdk.getApplink().then(res => {
-      expect(res).toBe('blockpass-local://sso/testClientId/0123')
+      expect(res).toBe("blockpass-local://sso/testClientId/0123");
       webSdk.getApplink().then(res => {
-        expect(res).toBe('blockpass-local://sso/testClientId/0123')
-        done()
-      })
-    })
+        expect(res).toBe("blockpass-local://sso/testClientId/0123");
+        done();
+      });
+    });
   });
 });

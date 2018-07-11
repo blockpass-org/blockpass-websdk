@@ -40,26 +40,26 @@ var _events = require("events");
 
 var _events2 = _interopRequireDefault(_events);
 
-var _upath = require("upath");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var APPLINK_ENV = {
-  'local': 'blockpass-local',
-  'staging': 'blockpass-staging',
-  'prod': 'blockpass'
+  local: "blockpass-local",
+  staging: "blockpass-staging",
+  prod: "blockpass"
 };
+
 
 var DEFAULT_API = {
-  'local': 'http://172.16.0.203:1337',
-  'dev': 'http://172.16.21.165:1337',
-  'staging': 'https://sandbox-api.blockpass.org',
-  'prod': 'https://asia-api.blockpass.org'
-
-  /**
-   * Blockpass WebSDK
-   */
+  local: "http://172.16.0.203:1337",
+  dev: "http://172.16.21.165:1337",
+  staging: "https://sandbox-api.blockpass.org",
+  prod: "https://asia-api.blockpass.org"
 };
+
+/**
+ * Blockpass WebSDK
+ */
+
 var WebSDK = function (_EventEmitter) {
   (0, _inherits3.default)(WebSDK, _EventEmitter);
 
@@ -80,7 +80,7 @@ var WebSDK = function (_EventEmitter) {
 
     if (!clientId) throw new Error("Missing critical config paramaters: clientId");
 
-    _this.env = env || 'prod';
+    _this.env = env || "prod";
     _this.refreshRateMs = refreshRateMs || 500;
     _this.baseUrl = baseUrl || DEFAULT_API[_this.env];
     _this.clientId = clientId;
@@ -148,7 +148,7 @@ var WebSDK = function (_EventEmitter) {
 
     /**
      * Deconstructor
-     * 
+     *
      */
 
   }, {
@@ -255,74 +255,82 @@ var WebSDK = function (_EventEmitter) {
       function InternalJob() {
         var _isRunning = true;
 
-        this.start = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
-          var response, data, status;
-          return _regenerator2.default.wrap(function _callee4$(_context4) {
-            while (1) {
-              switch (_context4.prev = _context4.next) {
-                case 0:
-                  if (!_isRunning) {
-                    _context4.next = 22;
+        this.start = function () {
+          var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
+            var response, data, status;
+            return _regenerator2.default.wrap(function _callee4$(_context4) {
+              while (1) {
+                switch (_context4.prev = _context4.next) {
+                  case 0:
+                    if (!_isRunning) {
+                      _context4.next = 22;
+                      break;
+                    }
+
+                    _context4.next = 3;
+                    return self._refreshSessionTicket(sessionId);
+
+                  case 3:
+                    response = _context4.sent;
+
+                    if (_isRunning) {
+                      _context4.next = 6;
+                      break;
+                    }
+
+                    return _context4.abrupt("return");
+
+                  case 6:
+                    if (response) {
+                      _context4.next = 10;
+                      break;
+                    }
+
+                    _context4.next = 9;
+                    return _sleep(refreshRateMs);
+
+                  case 9:
+                    return _context4.abrupt("continue", 0);
+
+                  case 10:
+                    data = response.data;
+                    status = data.status;
+
+                    if (!(status === "success" || status === "failed")) {
+                      _context4.next = 17;
+                      break;
+                    }
+
+                    self.emit("sso-complete", data);
+                    return _context4.abrupt("break", 22);
+
+                  case 17:
+                    if (status === "processing") self.emit("sso-processing", data);
+
+                  case 18:
+                    _context4.next = 20;
+                    return _sleep(refreshRateMs);
+
+                  case 20:
+                    _context4.next = 0;
                     break;
-                  }
 
-                  _context4.next = 3;
-                  return self._refreshSessionTicket(sessionId);
-
-                case 3:
-                  response = _context4.sent;
-
-                  if (_isRunning) {
-                    _context4.next = 6;
-                    break;
-                  }
-
-                  return _context4.abrupt("return");
-
-                case 6:
-                  if (response) {
-                    _context4.next = 10;
-                    break;
-                  }
-
-                  _context4.next = 9;
-                  return _sleep(refreshRateMs);
-
-                case 9:
-                  return _context4.abrupt("continue", 0);
-
-                case 10:
-                  data = response.data;
-                  status = data.status;
-
-                  if (!(status === "success" || status === "failed")) {
-                    _context4.next = 17;
-                    break;
-                  }
-
-                  self.emit("sso-complete", data);
-                  return _context4.abrupt("break", 22);
-
-                case 17:
-                  if (status === "processing") self.emit("sso-processing", data);
-
-                case 18:
-                  _context4.next = 20;
-                  return _sleep(refreshRateMs);
-
-                case 20:
-                  _context4.next = 0;
-                  break;
-
-                case 22:
-                case "end":
-                  return _context4.stop();
+                  case 22:
+                  case "end":
+                    return _context4.stop();
+                }
               }
-            }
-          }, _callee4, this);
-        }));
+            }, _callee4, this);
+          }));
 
-        this.stop = function () {
+          function start() {
+            return _ref5.apply(this, arguments);
+          }
+
+          return start;
+        }();
+
+        this.stop = function stop() {
           _isRunning = false;
         };
       }
@@ -390,17 +398,13 @@ var WebSDK = function (_EventEmitter) {
                 response = _context6.sent;
 
                 if (!response.ok) {
-                  _context6.next = 7;
+                  _context6.next = 5;
                   break;
                 }
 
-                _context6.next = 6;
-                return response.json();
+                return _context6.abrupt("return", response.json());
 
-              case 6:
-                return _context6.abrupt("return", _context6.sent);
-
-              case 7:
+              case 5:
               case "end":
                 return _context6.stop();
             }
@@ -461,7 +465,7 @@ exports.default = WebSDK;
  */
 
 /**
- * Generated session code, can only be used once. Life cycles (created -> processing -> success|failed) 
+ * Generated session code, can only be used once. Life cycles (created -> processing -> success|failed)
  * Client must refresh code after sso failed / timeout
  * @event WebSDK#code-refresh
  * @type {object}
@@ -482,5 +486,5 @@ exports.default = WebSDK;
  * @property {string} status - status of session code (success|failed)
  * @property {object} extraData - extraData
  * @property {string} extraData.sessionData - session code
- * @property {object} extraData.extraData - Services' extra data 
+ * @property {object} extraData.extraData - Services' extra data
  */

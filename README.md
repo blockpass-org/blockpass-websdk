@@ -83,41 +83,39 @@ $ npm run watch # watch code changes and run scripts automatically
 
 #### Table of Contents
 
--   [constructor](#constructor)
--   [generateSSOData](#generatessodata)
--   [destroy](#destroy)
--   [getApplink](#getapplink)
+-   [WebSDK](#websdk)
+    -   [generateSSOData](#generatessodata)
+    -   [destroy](#destroy)
+    -   [getApplink](#getapplink)
 -   [ConstructorParams](#constructorparams)
 -   [WebSDK#code-refresh](#websdkcode-refresh)
 -   [WebSDK#sso-processing](#websdksso-processing)
 -   [WebSDK#sso-complete](#websdksso-complete)
 
-### 
+### WebSDK
+
+**Extends EventEmitter**
 
 Blockpass WebSDK
-
-### constructor
-
-Constructor
 
 **Parameters**
 
 -   `configData` **...[ConstructorParams](#constructorparams)** 
 
-### generateSSOData
+#### generateSSOData
 
 Generate new SSO code and monitor status
 
-### destroy
+#### destroy
 
 Deconstructor
 
-### getApplink
+#### getApplink
 
 Generate appLink string
 Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
 
-Returns **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)?>** 
 
 ### 
 
@@ -134,7 +132,7 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 ### WebSDK#code-refresh
 
-Generated session code, can only be used once. Life cycles (created -> processing -> success|failed) 
+Generated session code, can only be used once. Life cycles (created -> processing -> success|failed)
 Client must refresh code after sso failed / timeout
 
 Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)

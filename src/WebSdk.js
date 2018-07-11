@@ -1,21 +1,20 @@
 // @flow
 import EventEmitter from "events";
-import { resolve } from "upath";
 
 type BlockpassEnv = "local" | "staging" | "prod";
 
 const APPLINK_ENV = {
-  'local': 'blockpass-local',
-  'staging': 'blockpass-staging',
-  'prod': 'blockpass',
-}
+  local: "blockpass-local",
+  staging: "blockpass-staging",
+  prod: "blockpass"
+};
 
 const DEFAULT_API = {
-  'local': 'http://172.16.0.203:1337',
-  'dev': 'http://172.16.21.165:1337',
-  'staging': 'https://sandbox-api.blockpass.org',
-  'prod': 'https://asia-api.blockpass.org',
-}
+  local: "http://172.16.0.203:1337",
+  dev: "http://172.16.21.165:1337",
+  staging: "https://sandbox-api.blockpass.org",
+  prod: "https://asia-api.blockpass.org"
+};
 
 /**
  * Blockpass WebSDK
@@ -26,7 +25,7 @@ class WebSDK extends EventEmitter {
   stopTicket: any;
   env: BlockpassEnv;
   _currentSessionId: string;
-  refreshRateMs: int;
+  refreshRateMs: number;
 
   /**
    * Constructor
@@ -35,7 +34,7 @@ class WebSDK extends EventEmitter {
   constructor(configData: {
     baseUrl: string,
     clientId: string,
-    refreshRateMs: int,
+    refreshRateMs: number,
     env?: BlockpassEnv
   }) {
     super();
@@ -45,7 +44,7 @@ class WebSDK extends EventEmitter {
     if (!clientId)
       throw new Error("Missing critical config paramaters: clientId");
 
-    this.env = env || 'prod';
+    this.env = env || "prod";
     this.refreshRateMs = refreshRateMs || 500;
     this.baseUrl = baseUrl || DEFAULT_API[this.env];
     this.clientId = clientId;
@@ -71,10 +70,10 @@ class WebSDK extends EventEmitter {
       );
 
       this.emit("code-refresh", response);
-      this._currentSessionId = response.session
+      this._currentSessionId = response.session;
 
       // Start watching for status
-      this.stopTicket = this._waitingLoginComplete(response.session)
+      this.stopTicket = this._waitingLoginComplete(response.session);
 
       return response;
     } catch (err) {
@@ -84,7 +83,7 @@ class WebSDK extends EventEmitter {
 
   /**
    * Deconstructor
-   * 
+   *
    */
   destroy() {
     if (this.stopTicket) {
@@ -97,20 +96,22 @@ class WebSDK extends EventEmitter {
    * Generate appLink string
    * Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
    */
-  async getApplink(): string {
+  async getApplink(): Promise<?string> {
     return new Promise(async (resolve, reject) => {
       let applinkString;
       while (true) {
         if (this._currentSessionId) {
-          const prefix = APPLINK_ENV[this.env]
-          applinkString = `${prefix}://sso/${this.clientId}/${this._currentSessionId}`
+          const prefix = APPLINK_ENV[this.env];
+          applinkString = `${prefix}://sso/${this.clientId}/${
+            this._currentSessionId
+          }`;
           break;
         }
         await this._sleep(this.refreshRateMs / 2);
       }
 
-      resolve(applinkString)
-    })
+      resolve(applinkString);
+    });
   }
 
   _waitingLoginComplete(sessionId: string): any {
@@ -124,8 +125,8 @@ class WebSDK extends EventEmitter {
 
     function InternalJob() {
       let _isRunning = true;
-      
-      this.start = async function () {
+
+      this.start = async function start() {
         while (_isRunning) {
           const response = await self._refreshSessionTicket(sessionId);
 
@@ -140,24 +141,23 @@ class WebSDK extends EventEmitter {
           const { status } = data;
 
           if (status === "success" || status === "failed") {
-            self.emit("sso-complete", data)
+            self.emit("sso-complete", data);
             break;
-
           } else if (status === "processing") self.emit("sso-processing", data);
 
           await _sleep(refreshRateMs);
         }
-      }
+      };
 
-      this.stop = function () {
+      this.stop = function stop() {
         _isRunning = false;
-      }
+      };
     }
 
     const ins = new InternalJob();
     ins.start();
 
-    return ins.stop
+    return ins.stop;
   }
 
   async _refreshSessionTicket(sessionId: string): any {
@@ -180,15 +180,15 @@ class WebSDK extends EventEmitter {
 
   async _fetchAsync(url: string, configs: Object): Promise<any> {
     const response = await fetch(url, configs);
-    if (response.ok) return await response.json();
+    if (response.ok) return response.json();
   }
 
-  async _sleep(timeMs = 1) {
+  async _sleep(timeMs: number = 1) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve();
       }, timeMs);
-    })
+    });
   }
 }
 
@@ -206,7 +206,7 @@ export default WebSDK;
  */
 
 /**
- * Generated session code, can only be used once. Life cycles (created -> processing -> success|failed) 
+ * Generated session code, can only be used once. Life cycles (created -> processing -> success|failed)
  * Client must refresh code after sso failed / timeout
  * @event WebSDK#code-refresh
  * @type {object}
@@ -227,5 +227,5 @@ export default WebSDK;
  * @property {string} status - status of session code (success|failed)
  * @property {object} extraData - extraData
  * @property {string} extraData.sessionData - session code
- * @property {object} extraData.extraData - Services' extra data 
+ * @property {object} extraData.extraData - Services' extra data
  */
