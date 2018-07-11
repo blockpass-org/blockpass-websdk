@@ -5,6 +5,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _promise = require("babel-runtime/core-js/promise");
+
+var _promise2 = _interopRequireDefault(_promise);
+
 var _regenerator = require("babel-runtime/regenerator");
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
@@ -37,11 +41,26 @@ var _events = require("events");
 
 var _events2 = _interopRequireDefault(_events);
 
+var _upath = require("upath");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Blockpass WebSDK
- */
+var APPLINK_ENV = {
+  'local': 'blockpass-local',
+  'staging': 'blockpass-staging',
+  'prod': 'blockpass'
+};
+
+var DEFAULT_API = {
+  'local': 'http://172.16.0.203:1337',
+  'dev': 'http://172.16.21.165:1337',
+  'staging': 'https://sandbox-api.blockpass.org',
+  'prod': 'https://asia-api.blockpass.org'
+
+  /**
+   * Blockpass WebSDK
+   */
+};
 var WebSDK = function (_EventEmitter) {
   (0, _inherits3.default)(WebSDK, _EventEmitter);
 
@@ -57,13 +76,15 @@ var WebSDK = function (_EventEmitter) {
     var _ref = configData || {},
         baseUrl = _ref.baseUrl,
         clientId = _ref.clientId,
+        env = _ref.env,
         refreshRateMs = _ref.refreshRateMs;
 
-    if (!baseUrl || !clientId) throw new Error("Missing critical config paramaters");
+    if (!clientId) throw new Error("Missing critical config paramaters: clientId");
 
-    _this.baseUrl = baseUrl;
+    _this.env = env || 'prod';
+    _this.refreshRateMs = refreshRateMs || 500;
+    _this.baseUrl = baseUrl || DEFAULT_API[_this.env];
     _this.clientId = clientId;
-    _this.refreshRateMs = refreshRateMs || 5000;
     return _this;
   }
 
@@ -99,23 +120,24 @@ var WebSDK = function (_EventEmitter) {
 
 
                 this.emit("code-refresh", response);
+                this._currentSessionId = response.session;
 
                 // Start watching for status
-                this._waitingLoginComplete(response.session);
+                this.stopTicket = this._waitingLoginComplete(response.session);
 
                 return _context.abrupt("return", response);
 
-              case 10:
-                _context.prev = 10;
+              case 11:
+                _context.prev = 11;
                 _context.t0 = _context["catch"](1);
                 throw _context.t0;
 
-              case 13:
+              case 14:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[1, 10]]);
+        }, _callee, this, [[1, 11]]);
       }));
 
       function generateSSOData() {
@@ -124,52 +146,74 @@ var WebSDK = function (_EventEmitter) {
 
       return generateSSOData;
     }()
+
+    /**
+     * Deconstructor
+     * 
+     */
+
   }, {
-    key: "_waitingLoginComplete",
+    key: "destroy",
+    value: function destroy() {
+      if (this.stopTicket) {
+        this.stopTicket();
+        this.stopTicket = null;
+      }
+    }
+
+    /**
+     * Generate appLink string
+     * Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
+     */
+
+  }, {
+    key: "getApplink",
     value: function () {
-      var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(sessionId) {
+      var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3() {
         var _this2 = this;
 
         return _regenerator2.default.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                if (this.timeOutTicket) {
-                  clearInterval(this.timeOutTicket);
-                  this.timeOutTicket = null;
-                }
-
-                this.timeOutTicket = setInterval(function () {
-                  var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(_) {
-                    var response, status;
+                return _context3.abrupt("return", new _promise2.default(function () {
+                  var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(resolve, reject) {
+                    var applinkString, prefix;
                     return _regenerator2.default.wrap(function _callee2$(_context2) {
                       while (1) {
                         switch (_context2.prev = _context2.next) {
                           case 0:
-                            _context2.next = 2;
-                            return _this2._refreshSessionTicket(sessionId);
+                            applinkString = void 0;
 
-                          case 2:
-                            response = _context2.sent;
-
-                            if (response) {
-                              _context2.next = 5;
+                          case 1:
+                            if (!true) {
+                              _context2.next = 10;
                               break;
                             }
 
-                            return _context2.abrupt("return");
+                            if (!_this2._currentSessionId) {
+                              _context2.next = 6;
+                              break;
+                            }
 
-                          case 5:
-                            status = response.status;
+                            prefix = APPLINK_ENV[_this2.env];
 
+                            applinkString = prefix + "://sso/" + _this2.clientId + "/" + _this2._currentSessionId;
+                            return _context2.abrupt("break", 10);
 
-                            if (status === "success" || status === "failed") {
-                              _this2.emit("sso-complete", response);
-                              clearInterval(_this2.timeOutTicket);
-                              _this2.timeOutTicket = null;
-                            } else if (status === "processing") _this2.emit("sso-processing", response);
+                          case 6:
+                            _context2.next = 8;
+                            return _this2._sleep(_this2.refreshRateMs / 2);
 
-                          case 7:
+                          case 8:
+                            _context2.next = 1;
+                            break;
+
+                          case 10:
+
+                            resolve(applinkString);
+
+                          case 11:
                           case "end":
                             return _context2.stop();
                         }
@@ -177,12 +221,12 @@ var WebSDK = function (_EventEmitter) {
                     }, _callee2, _this2);
                   }));
 
-                  return function (_x2) {
+                  return function (_x, _x2) {
                     return _ref4.apply(this, arguments);
                   };
-                }(), this.refreshRateMs);
+                }()));
 
-              case 2:
+              case 1:
               case "end":
                 return _context3.stop();
             }
@@ -190,25 +234,118 @@ var WebSDK = function (_EventEmitter) {
         }, _callee3, this);
       }));
 
-      function _waitingLoginComplete(_x) {
+      function getApplink() {
         return _ref3.apply(this, arguments);
       }
 
-      return _waitingLoginComplete;
+      return getApplink;
     }()
+  }, {
+    key: "_waitingLoginComplete",
+    value: function _waitingLoginComplete(sessionId) {
+      if (this.stopTicket) {
+        this.stopTicket();
+        this.stopTicket = null;
+      }
+
+      var self = this;
+      var refreshRateMs = this.refreshRateMs,
+          _sleep = this._sleep;
+
+
+      function InternalJob() {
+        var _isRunning = true;
+
+        this.start = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
+          var response, data, status;
+          return _regenerator2.default.wrap(function _callee4$(_context4) {
+            while (1) {
+              switch (_context4.prev = _context4.next) {
+                case 0:
+                  if (!_isRunning) {
+                    _context4.next = 22;
+                    break;
+                  }
+
+                  _context4.next = 3;
+                  return self._refreshSessionTicket(sessionId);
+
+                case 3:
+                  response = _context4.sent;
+
+                  if (_isRunning) {
+                    _context4.next = 6;
+                    break;
+                  }
+
+                  return _context4.abrupt("return");
+
+                case 6:
+                  if (response) {
+                    _context4.next = 10;
+                    break;
+                  }
+
+                  _context4.next = 9;
+                  return _sleep(refreshRateMs);
+
+                case 9:
+                  return _context4.abrupt("continue", 0);
+
+                case 10:
+                  data = response.data;
+                  status = data.status;
+
+                  if (!(status === "success" || status === "failed")) {
+                    _context4.next = 17;
+                    break;
+                  }
+
+                  self.emit("sso-complete", data);
+                  return _context4.abrupt("break", 22);
+
+                case 17:
+                  if (status === "processing") self.emit("sso-processing", data);
+
+                case 18:
+                  _context4.next = 20;
+                  return _sleep(refreshRateMs);
+
+                case 20:
+                  _context4.next = 0;
+                  break;
+
+                case 22:
+                case "end":
+                  return _context4.stop();
+              }
+            }
+          }, _callee4, this);
+        }));
+
+        this.stop = function () {
+          _isRunning = false;
+        };
+      }
+
+      var ins = new InternalJob();
+      ins.start();
+
+      return ins.stop;
+    }
   }, {
     key: "_refreshSessionTicket",
     value: function () {
-      var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(sessionId) {
+      var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(sessionId) {
         var baseUrl, response;
-        return _regenerator2.default.wrap(function _callee4$(_context4) {
+        return _regenerator2.default.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                _context4.prev = 0;
+                _context5.prev = 0;
                 baseUrl = this.baseUrl;
-                _context4.next = 4;
-                return this._fetchAsync(baseUrl + "/api/v0.3/service/register/" + sessionId, {
+                _context5.next = 4;
+                return this._fetchAsync(baseUrl + "/api/v0.3/service/registerPolling/" + sessionId, {
                   method: "GET",
                   headers: {
                     "Content-Type": "application/json"
@@ -216,24 +353,24 @@ var WebSDK = function (_EventEmitter) {
                 });
 
               case 4:
-                response = _context4.sent;
-                return _context4.abrupt("return", response);
+                response = _context5.sent;
+                return _context5.abrupt("return", response);
 
               case 8:
-                _context4.prev = 8;
-                _context4.t0 = _context4["catch"](0);
-                return _context4.abrupt("return", null);
+                _context5.prev = 8;
+                _context5.t0 = _context5["catch"](0);
+                return _context5.abrupt("return", null);
 
               case 11:
               case "end":
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4, this, [[0, 8]]);
+        }, _callee5, this, [[0, 8]]);
       }));
 
       function _refreshSessionTicket(_x3) {
-        return _ref5.apply(this, arguments);
+        return _ref6.apply(this, arguments);
       }
 
       return _refreshSessionTicket;
@@ -241,42 +378,71 @@ var WebSDK = function (_EventEmitter) {
   }, {
     key: "_fetchAsync",
     value: function () {
-      var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(url, configs) {
+      var _ref7 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee6(url, configs) {
         var response;
-        return _regenerator2.default.wrap(function _callee5$(_context5) {
+        return _regenerator2.default.wrap(function _callee6$(_context6) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context6.prev = _context6.next) {
               case 0:
-                _context5.next = 2;
+                _context6.next = 2;
                 return fetch(url, configs);
 
               case 2:
-                response = _context5.sent;
+                response = _context6.sent;
 
                 if (!response.ok) {
-                  _context5.next = 7;
+                  _context6.next = 7;
                   break;
                 }
 
-                _context5.next = 6;
+                _context6.next = 6;
                 return response.json();
 
               case 6:
-                return _context5.abrupt("return", _context5.sent);
+                return _context6.abrupt("return", _context6.sent);
 
               case 7:
               case "end":
-                return _context5.stop();
+                return _context6.stop();
             }
           }
-        }, _callee5, this);
+        }, _callee6, this);
       }));
 
       function _fetchAsync(_x4, _x5) {
-        return _ref6.apply(this, arguments);
+        return _ref7.apply(this, arguments);
       }
 
       return _fetchAsync;
+    }()
+  }, {
+    key: "_sleep",
+    value: function () {
+      var _ref8 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee7() {
+        var timeMs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+        return _regenerator2.default.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                return _context7.abrupt("return", new _promise2.default(function (resolve, reject) {
+                  setTimeout(function () {
+                    resolve();
+                  }, timeMs);
+                }));
+
+              case 1:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, _callee7, this);
+      }));
+
+      function _sleep() {
+        return _ref8.apply(this, arguments);
+      }
+
+      return _sleep;
     }()
   }]);
   return WebSDK;
@@ -292,7 +458,6 @@ exports.default = WebSDK;
  * @typedef {object} ConstructorParams
  * @property {string} baseUrl - Blockpass url.
  * @property {string} clientId - Blockpass ClientId (obtain when register with Blockpass platform). 
- * @property {number} refreshRateMs - Refresh rate in miliseconds (default-5000). 
  
  */
 
@@ -320,7 +485,7 @@ exports.default = WebSDK;
  * @property {string} extraData.sessionData - session code
  * @property {object} extraData.extraData - Services' extra data 
  */
-},{"babel-runtime/core-js/object/get-prototype-of":5,"babel-runtime/helpers/asyncToGenerator":10,"babel-runtime/helpers/classCallCheck":11,"babel-runtime/helpers/createClass":12,"babel-runtime/helpers/inherits":13,"babel-runtime/helpers/possibleConstructorReturn":14,"babel-runtime/regenerator":16,"events":111}],2:[function(require,module,exports){
+},{"babel-runtime/core-js/object/get-prototype-of":5,"babel-runtime/core-js/promise":7,"babel-runtime/helpers/asyncToGenerator":10,"babel-runtime/helpers/classCallCheck":11,"babel-runtime/helpers/createClass":12,"babel-runtime/helpers/inherits":13,"babel-runtime/helpers/possibleConstructorReturn":14,"babel-runtime/regenerator":16,"events":111,"upath":116}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -503,7 +668,7 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 },{"../core-js/symbol":8,"../core-js/symbol/iterator":9}],16:[function(require,module,exports){
 module.exports = require("regenerator-runtime");
 
-},{"regenerator-runtime":112}],17:[function(require,module,exports){
+},{"regenerator-runtime":114}],17:[function(require,module,exports){
 require('../../modules/es6.object.create');
 var $Object = require('../../modules/_core').Object;
 module.exports = function create(P, D) {
@@ -2852,6 +3017,420 @@ function functionBindPolyfill(context) {
 }
 
 },{}],112:[function(require,module,exports){
+(function (process){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length - 1; i >= 0; i--) {
+    var last = parts[i];
+    if (last === '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Split a filename into [root, dir, basename, ext], unix version
+// 'root' is just a slash, or nothing.
+var splitPathRe =
+    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+var splitPath = function(filename) {
+  return splitPathRe.exec(filename).slice(1);
+};
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+  var resolvedPath = '',
+      resolvedAbsolute = false;
+
+  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    var path = (i >= 0) ? arguments[i] : process.cwd();
+
+    // Skip empty and invalid entries
+    if (typeof path !== 'string') {
+      throw new TypeError('Arguments to path.resolve must be strings');
+    } else if (!path) {
+      continue;
+    }
+
+    resolvedPath = path + '/' + resolvedPath;
+    resolvedAbsolute = path.charAt(0) === '/';
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when process.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+  var isAbsolute = exports.isAbsolute(path),
+      trailingSlash = substr(path, -1) === '/';
+
+  // Normalize the path
+  path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+
+  return (isAbsolute ? '/' : '') + path;
+};
+
+// posix version
+exports.isAbsolute = function(path) {
+  return path.charAt(0) === '/';
+};
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    if (typeof p !== 'string') {
+      throw new TypeError('Arguments to path.join must be strings');
+    }
+    return p;
+  }).join('/'));
+};
+
+
+// path.relative(from, to)
+// posix version
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+exports.delimiter = ':';
+
+exports.dirname = function(path) {
+  var result = splitPath(path),
+      root = result[0],
+      dir = result[1];
+
+  if (!root && !dir) {
+    // No dirname whatsoever
+    return '.';
+  }
+
+  if (dir) {
+    // It has a dirname, strip trailing slash
+    dir = dir.substr(0, dir.length - 1);
+  }
+
+  return root + dir;
+};
+
+
+exports.basename = function(path, ext) {
+  var f = splitPath(path)[2];
+  // TODO: make this comparison case-insensitive on windows?
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+
+exports.extname = function(path) {
+  return splitPath(path)[3];
+};
+
+function filter (xs, f) {
+    if (xs.filter) return xs.filter(f);
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (f(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// String.prototype.substr - negative index don't work in IE8
+var substr = 'ab'.substr(-1) === 'b'
+    ? function (str, start, len) { return str.substr(start, len) }
+    : function (str, start, len) {
+        if (start < 0) start = str.length + start;
+        return str.substr(start, len);
+    }
+;
+
+}).call(this,require('_process'))
+},{"_process":113}],113:[function(require,module,exports){
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],114:[function(require,module,exports){
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
  *
@@ -2888,7 +3467,7 @@ if (hadRuntime) {
   }
 }
 
-},{"./runtime":113}],113:[function(require,module,exports){
+},{"./runtime":115}],115:[function(require,module,exports){
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
  *
@@ -3617,5 +4196,175 @@ if (hadRuntime) {
   (function() { return this })() || Function("return this")()
 );
 
-},{}]},{},[2])(2)
+},{}],116:[function(require,module,exports){
+/**
+* upath http://github.com/anodynos/upath/
+*
+* A proxy to `path`, replacing `\` with `/` for all results & new methods to normalize & join keeping leading `./` and add, change, default, trim file extensions.
+* Version 1.0.4 - Compiled on 2018-02-26 00:12:05
+* Repository git://github.com/anodynos/upath
+* Copyright(c) 2018 Angelos Pikoulas <agelos.pikoulas@gmail.com>
+* License MIT
+*/
+
+// Generated by uRequire v0.7.0-beta.33 target: 'lib' template: 'nodejs'
+
+
+var VERSION = '1.0.4'; // injected by urequire-rc-inject-version
+
+var extraFn, extraFunctions, isFunction, isString, isValidExt, name, path, propName, propValue, toUnix, upath, slice = [].slice, indexOf = [].indexOf || function (item) {
+    for (var i = 0, l = this.length; i < l; i++) {
+      if (i in this && this[i] === item)
+        return i;
+    }
+    return -1;
+  };
+path = require("path");
+isFunction = function (val) {
+  return val instanceof Function;
+};
+isString = function (val) {
+  return typeof val === "string" || !!val && typeof val === "object" && Object.prototype.toString.call(val) === "[object String]";
+};
+upath = exports;
+upath.VERSION = typeof VERSION !== "undefined" && VERSION !== null ? VERSION : "NO-VERSION";
+toUnix = function (p) {
+  var double;
+  p = p.replace(/\\/g, "/");
+  double = /\/\//;
+  while (p.match(double)) {
+    p = p.replace(double, "/");
+  }
+  return p;
+};
+for (propName in path) {
+  propValue = path[propName];
+  if (isFunction(propValue)) {
+    upath[propName] = function (propName) {
+      return function () {
+        var args, result;
+        args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+        args = args.map(function (p) {
+          if (isString(p)) {
+            return toUnix(p);
+          } else {
+            return p;
+          }
+        });
+        result = path[propName].apply(path, args);
+        if (isString(result)) {
+          return toUnix(result);
+        } else {
+          return result;
+        }
+      };
+    }(propName);
+  } else {
+    upath[propName] = propValue;
+  }
+}
+upath.sep = "/";
+extraFunctions = {
+  toUnix: toUnix,
+  normalizeSafe: function (p) {
+    p = toUnix(p);
+    if (p.startsWith("./")) {
+      if (p.startsWith("./..") || p === "./") {
+        return upath.normalize(p);
+      } else {
+        return "./" + upath.normalize(p);
+      }
+    } else {
+      return upath.normalize(p);
+    }
+  },
+  normalizeTrim: function (p) {
+    p = upath.normalizeSafe(p);
+    if (p.endsWith("/")) {
+      return p.slice(0, +(p.length - 2) + 1 || 9000000000);
+    } else {
+      return p;
+    }
+  },
+  joinSafe: function () {
+    var p, result;
+    p = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+    result = upath.join.apply(null, p);
+    if (p[0].startsWith("./") && !result.startsWith("./")) {
+      result = "./" + result;
+    }
+    return result;
+  },
+  addExt: function (file, ext) {
+    if (!ext) {
+      return file;
+    } else {
+      if (ext[0] !== ".") {
+        ext = "." + ext;
+      }
+      return file + (file.endsWith(ext) ? "" : ext);
+    }
+  },
+  trimExt: function (filename, ignoreExts, maxSize) {
+    var oldExt;
+    if (maxSize == null) {
+      maxSize = 7;
+    }
+    oldExt = upath.extname(filename);
+    if (isValidExt(oldExt, ignoreExts, maxSize)) {
+      return filename.slice(0, +(filename.length - oldExt.length - 1) + 1 || 9000000000);
+    } else {
+      return filename;
+    }
+  },
+  removeExt: function (filename, ext) {
+    if (!ext) {
+      return filename;
+    } else {
+      ext = ext[0] === "." ? ext : "." + ext;
+      if (upath.extname(filename) === ext) {
+        return upath.trimExt(filename);
+      } else {
+        return filename;
+      }
+    }
+  },
+  changeExt: function (filename, ext, ignoreExts, maxSize) {
+    if (maxSize == null) {
+      maxSize = 7;
+    }
+    return upath.trimExt(filename, ignoreExts, maxSize) + (!ext ? "" : ext[0] === "." ? ext : "." + ext);
+  },
+  defaultExt: function (filename, ext, ignoreExts, maxSize) {
+    var oldExt;
+    if (maxSize == null) {
+      maxSize = 7;
+    }
+    oldExt = upath.extname(filename);
+    if (isValidExt(oldExt, ignoreExts, maxSize)) {
+      return filename;
+    } else {
+      return upath.addExt(filename, ext);
+    }
+  }
+};
+isValidExt = function (ext, ignoreExts, maxSize) {
+  if (ignoreExts == null) {
+    ignoreExts = [];
+  }
+  return ext && ext.length <= maxSize && indexOf.call(ignoreExts.map(function (e) {
+    return (e && e[0] !== "." ? "." : "") + e;
+  }), ext) < 0;
+};
+for (name in extraFunctions) {
+  extraFn = extraFunctions[name];
+  if (upath[name] !== void 0) {
+    throw new Error("path." + name + " already exists.");
+  } else {
+    upath[name] = extraFn;
+  }
+}
+
+;
+},{"path":112}]},{},[2])(2)
 });

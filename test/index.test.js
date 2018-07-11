@@ -25,6 +25,7 @@ describe("basic-features", () => {
 
     webSdk.on("code-refresh", codeResponse => {
       expect(codeResponse.session).toBe(FAKE_SESSION_ID);
+      webSdk.destroy();
       done();
     });
 
@@ -50,9 +51,9 @@ describe("basic-features", () => {
 
     // 1st time => processing
     let refreshRequest = nork(BASE_URL)
-      .get(`/api/v0.3/service/register/${FAKE_SESSION_ID}`)
+      .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID}`)
       .once()
-      .reply(200, { status: "processing" });
+      .reply(200, { status: 'success', data: { status: "processing" } });
 
     // callback code-refresh
     webSdk.on("code-refresh", codeResponse => {
@@ -65,14 +66,17 @@ describe("basic-features", () => {
 
       // 2nd time => complete
       refreshRequest = nork(BASE_URL)
-        .get(`/api/v0.3/service/register/${FAKE_SESSION_ID}`)
+        .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID}`)
         .once()
         .reply(200, {
           status: "success",
-          extraData: {
-            sessionData: FAKE_SESSION_ID,
+          data: {
+            status: "success",
             extraData: {
-              myNameIs: "bot"
+              sessionData: FAKE_SESSION_ID,
+              extraData: {
+                myNameIs: "bot"
+              }
             }
           }
         });
@@ -81,6 +85,7 @@ describe("basic-features", () => {
     // calback sso-complete
     webSdk.on("sso-complete", response => {
       expect(response.extraData.extraData.myNameIs).toBe("bot");
+      webSdk.destroy();
       done();
     });
 
@@ -106,9 +111,9 @@ describe("basic-features", () => {
 
     // 1st time => processing
     let refreshRequest = nork(BASE_URL)
-      .get(`/api/v0.3/service/register/${FAKE_SESSION_ID}`)
+      .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID}`)
       .once()
-      .reply(200, { status: "processing" });
+      .reply(200, { status: 'success' ,data: { status: "processing" }});
 
     // callback code-refresh
     webSdk.on("code-refresh", codeResponse => {
@@ -121,15 +126,18 @@ describe("basic-features", () => {
 
       // 2nd time => complete
       refreshRequest = nork(BASE_URL)
-        .get(`/api/v0.3/service/register/${FAKE_SESSION_ID}`)
+        .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID}`)
         .once()
         .reply(200, {
-          status: "failed",
-          extraData: {
-            sessionData: FAKE_SESSION_ID,
+          status: "success",
+          data: {
+            status: "failed",
             extraData: {
-              err: 403,
-              msg: "missing required permission"
+              sessionData: FAKE_SESSION_ID,
+              extraData: {
+                err: 403,
+                msg: "missing required permission"
+              }
             }
           }
         });
@@ -139,6 +147,7 @@ describe("basic-features", () => {
     webSdk.on("sso-complete", response => {
       expect(response.status).toBe("failed");
       expect(response.extraData.extraData.err).toBe(403);
+      webSdk.destroy();
       done();
     });
 
@@ -171,9 +180,9 @@ describe("basic-features", () => {
 
     // 1st time => processing
     let refreshRequest = nork(BASE_URL)
-      .get(`/api/v0.3/service/register/${FAKE_SESSION_ID_NEW}`)
+      .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID_NEW}`)
       .once()
-      .reply(200, { status: "processing" });
+      .reply(200, { status: "success", data: { status: "processing" }});
 
     // callback code-refresh
     let count = 0;
@@ -189,14 +198,17 @@ describe("basic-features", () => {
 
       // 2nd time => complete
       refreshRequest = nork(BASE_URL)
-        .get(`/api/v0.3/service/register/${FAKE_SESSION_ID_NEW}`)
+        .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID_NEW}`)
         .once()
         .reply(200, {
-          status: "success",
-          extraData: {
-            sessionData: FAKE_SESSION_ID_NEW,
+          status: 'success',
+          data: {
+            status: "success",
             extraData: {
-              myNameIs: "bot"
+              sessionData: FAKE_SESSION_ID_NEW,
+              extraData: {
+                myNameIs: "bot"
+              }
             }
           }
         });
@@ -205,6 +217,7 @@ describe("basic-features", () => {
     // calback sso-complete
     webSdk.on("sso-complete", response => {
       expect(response.extraData.sessionData).toBe(FAKE_SESSION_ID_NEW);
+      webSdk.destroy();
       done();
     });
 
@@ -215,5 +228,32 @@ describe("basic-features", () => {
     setTimeout(_ => {
       webSdk.generateSSOData();
     }, 1);
+  });
+
+  it("applink-generate", done => {
+    const FAKE_SESSION_ID = "0123";
+
+    const webSdk = new WebSDK({
+      baseUrl: BASE_URL,
+      clientId: CLIENT_ID,
+      env: 'local'
+    });
+
+    const mockRequest = nork(BASE_URL)
+      .post(
+        `/api/v0.3/service/register/${CLIENT_ID}`,
+        body => true
+      )
+      .reply(200, { session: FAKE_SESSION_ID });
+
+    webSdk.generateSSOData();
+
+    webSdk.getApplink().then(res => {
+      expect(res).toBe('blockpass-local://sso/testClientId/0123')
+      webSdk.getApplink().then(res => {
+        expect(res).toBe('blockpass-local://sso/testClientId/0123')
+        done()
+      })
+    })
   });
 });
