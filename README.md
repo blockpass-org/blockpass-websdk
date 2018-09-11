@@ -4,9 +4,9 @@
 
 This packages contains:
 
--   ES6 source code `src/`
--   Transpiler for node (below 6) `dist/node`
--   Transpiler for web-browser `dist/browser`
+* ES6 source code `src/`
+* Transpiler for node (below 6) `dist/node`
+* Transpiler for web-browser `dist/browser`
 
 ## Getting started (browser)
 
@@ -20,12 +20,18 @@ This packages contains:
 
 ```javascript
 const clientId = '...'
-const baseUrl = '...'
+const env = 'staging|prod'
+
+/*
+Blockpass Environments:
+  - staging: Our testing enviroment (Blockpass partner and tester)
+  - prod: Live enviroment of Blockpass
+*/
 
 sdk = new window.Blockpass.WebSDK({
-    clientId,
-    baseUrl,
-    refreshRateMs: 1000
+  clientId,
+  env,
+  refreshRateMs: 1000
 })
 ```
 
@@ -33,23 +39,25 @@ sdk = new window.Blockpass.WebSDK({
 
 ```javascript
 function onBlockpassCodeRefresh(params) {
-    // session code ready to use now
+  // session code ready to use now
 
-    // demo qrcode images ( using demo online qrserver ). 
-    // DON'T USE THIS FOR YOUR SERVICE
-    document.getElementById('step1-qr').src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify({
-        clientId: '...',
-        session: params.session
-    })}`
+  // demo qrcode images ( using demo online qrserver ).
+  // DON'T USE THIS FOR YOUR SERVICE
+  document.getElementById(
+    'step1-qr'
+  ).src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify({
+    clientId: '...',
+    session: params.session
+  })}`
 }
 
 function onBlockpassProcessing(params) {
-    // session code invalid from now
-    // Show loading indicator
+  // session code invalid from now
+  // Show loading indicator
 }
 
 function onBlockpassSSoResult(params) {
-    // sso complete. handle your logic here
+  // sso complete. handle your logic here
 }
 
 sdk.on('code-refresh', onBlockpassCodeRefresh)
@@ -57,7 +65,7 @@ sdk.on('sso-processing', onBlockpassProcessing)
 sdk.on('sso-complete', onBlockpassSSoResult)
 
 // request for new sso code
-sdk.generateSSOData();
+sdk.generateSSOData()
 ```
 
 ## Development Instalation
@@ -83,14 +91,14 @@ $ npm run watch # watch code changes and run scripts automatically
 
 #### Table of Contents
 
--   [WebSDK](#websdk)
-    -   [generateSSOData](#generatessodata)
-    -   [destroy](#destroy)
-    -   [getApplink](#getapplink)
--   [ConstructorParams](#constructorparams)
--   [WebSDK#code-refresh](#websdkcode-refresh)
--   [WebSDK#sso-processing](#websdksso-processing)
--   [WebSDK#sso-complete](#websdksso-complete)
+* [WebSDK](#websdk)
+  * [generateSSOData](#generatessodata)
+  * [destroy](#destroy)
+  * [getApplink](#getapplink)
+* [ConstructorParams](#constructorparams)
+* [WebSDK#code-refresh](#websdkcode-refresh)
+* [WebSDK#sso-processing](#websdksso-processing)
+* [WebSDK#sso-complete](#websdksso-complete)
 
 ### WebSDK
 
@@ -100,7 +108,7 @@ Blockpass WebSDK
 
 **Parameters**
 
--   `configData` **...[ConstructorParams](#constructorparams)** 
+* `configData` **...[ConstructorParams](#constructorparams)**
 
 #### generateSSOData
 
@@ -115,11 +123,11 @@ Deconstructor
 Generate appLink string
 Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
 
-Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)?>** 
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)?>**
 
-### 
+###
 
-* * *
+---
 
 ### ConstructorParams
 
@@ -127,8 +135,8 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 **Properties**
 
--   `baseUrl` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass url.
--   `clientId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass ClientId (obtain when register with Blockpass platform).
+* `baseUrl` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass url.
+* `clientId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass ClientId (obtain when register with Blockpass platform).
 
 ### WebSDK#code-refresh
 
@@ -139,7 +147,7 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 **Properties**
 
--   `session` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** sessionID
+* `session` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** sessionID
 
 ### WebSDK#sso-processing
 
@@ -149,7 +157,7 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 **Properties**
 
--   `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code
+* `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code
 
 ### WebSDK#sso-complete
 
@@ -159,10 +167,10 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 **Properties**
 
--   `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code (success|failed)
--   `extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** extraData
-    -   `extraData.sessionData` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** session code
-    -   `extraData.extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Services' extra data
+* `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code (success|failed)
+* `extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** extraData
+  * `extraData.sessionData` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** session code
+  * `extraData.extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Services' extra data
 
 ## License
 
