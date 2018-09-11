@@ -1,6 +1,6 @@
 {
   "name": "blockpass-websdk",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Blockpass Sdk for webbrowser",
   "license": "MIT",
   "repository": "",
@@ -8,9 +8,7 @@
   "engines": {
     "node": ">=6"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "test": "jest",
     "coverage": "npm test -- --coverage",
@@ -22,9 +20,12 @@
     "flowbuild": "flow-copy-source src dist",
     "prebuild": "npm run docs && npm run clean && npm run flowbuild",
     "build": "babel src -d dist/node && npm run browser-build",
-    "browser-build": "mkdir -p dist/browser && npm run browser-build-dev && npm run browser-build-prod",
-    "browser-build-dev": "browserify dist/node/index.js --standalone Blockpass > dist/browser/blockpass.dev.js",
-    "browser-build-prod": "uglifyjs dist/browser/blockpass.dev.js -c drop_console=true -m > dist/browser/blockpass.min.js",
+    "browser-build":
+      "mkdir -p dist/browser && npm run browser-build-dev && npm run browser-build-prod",
+    "browser-build-dev":
+      "browserify dist/node/index.js --standalone Blockpass > dist/browser/blockpass.dev.js",
+    "browser-build-prod":
+      "uglifyjs dist/browser/blockpass.dev.js -c drop_console=true -m > dist/browser/blockpass.min.js",
     "watch": "npm-watch",
     "patch": "npm version patch && npm publish",
     "minor": "npm version minor && npm publish",
