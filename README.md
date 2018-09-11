@@ -85,6 +85,8 @@ $ npm run watch # watch code changes and run scripts automatically
 
 -   [WebSDK](#websdk)
     -   [generateSSOData](#generatessodata)
+    -   [destroy](#destroy)
+    -   [getApplink](#getapplink)
 -   [ConstructorParams](#constructorparams)
 -   [WebSDK#code-refresh](#websdkcode-refresh)
 -   [WebSDK#sso-processing](#websdksso-processing)
@@ -104,6 +106,17 @@ Blockpass WebSDK
 
 Generate new SSO code and monitor status
 
+#### destroy
+
+Deconstructor
+
+#### getApplink
+
+Generate appLink string
+Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
+
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)?>** 
+
 ### 
 
 * * *
@@ -116,11 +129,10 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 -   `baseUrl` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass url.
 -   `clientId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass ClientId (obtain when register with Blockpass platform).
--   `refreshRateMs` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)** Refresh rate in miliseconds (default-5000).
 
 ### WebSDK#code-refresh
 
-Generated session code, can only be used once. Life cycles (created -> processing -> success|failed) 
+Generated session code, can only be used once. Life cycles (created -> processing -> success|failed)
 Client must refresh code after sso failed / timeout
 
 Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)

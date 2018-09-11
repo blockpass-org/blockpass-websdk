@@ -25,6 +25,9 @@
                 <h4>Cli params: </h4>
                 <p id="step1-content"></p>
 
+                <h4>AppLink </h4>
+                <a id="step1-applink" >ClickMe</a>
+
                 <h4>Mobile QR: </h4>
                 <p>
                     <img id="step1-qr" />
@@ -44,8 +47,7 @@
 
     <script>
         const clientId = '3rd_service_demo'
-        const secretId = '3rd_service_demo'
-        const baseUrl = 'http://blockpass.local:1339'
+        const env = 'local'
 
         /** Blockpass SSO session generated
          *  @param {Object} params - session object
@@ -91,9 +93,8 @@
         window.addEventListener('load', _ => {
             sdk = new window.Blockpass.WebSDK({
                 clientId,
-                secretId,
-                baseUrl,
-                refreshRateMs: 5000
+                refreshRateMs: 1000,
+                env
             })
 
             sdk.on('code-refresh', onBlockpassCodeRefresh)
@@ -102,6 +103,11 @@
             
             // refresh new sso code
             sdk.generateSSOData();
+            
+            // appLink ( mobile only )
+            sdk.getApplink().then(appLinkUrl => {
+                document.getElementById('step1-applink').href = appLinkUrl
+            })
         })
 
     </script>

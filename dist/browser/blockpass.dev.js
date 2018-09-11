@@ -5,6 +5,10 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _promise = require("babel-runtime/core-js/promise");
+
+var _promise2 = _interopRequireDefault(_promise);
+
 var _regenerator = require("babel-runtime/regenerator");
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
@@ -39,9 +43,24 @@ var _events2 = _interopRequireDefault(_events);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var APPLINK_ENV = {
+  local: "blockpass-local",
+  staging: "blockpass-staging",
+  prod: "blockpass"
+};
+
+
+var DEFAULT_API = {
+  local: "http://172.16.0.203:1337",
+  dev: "http://172.16.21.165:1337",
+  staging: "https://sandbox-api.blockpass.org",
+  prod: "https://asia-api.blockpass.org"
+};
+
 /**
  * Blockpass WebSDK
  */
+
 var WebSDK = function (_EventEmitter) {
   (0, _inherits3.default)(WebSDK, _EventEmitter);
 
@@ -57,13 +76,15 @@ var WebSDK = function (_EventEmitter) {
     var _ref = configData || {},
         baseUrl = _ref.baseUrl,
         clientId = _ref.clientId,
+        env = _ref.env,
         refreshRateMs = _ref.refreshRateMs;
 
-    if (!baseUrl || !clientId) throw new Error("Missing critical config paramaters");
+    if (!clientId) throw new Error("Missing critical config paramaters: clientId");
 
-    _this.baseUrl = baseUrl;
+    _this.env = env || "prod";
+    _this.refreshRateMs = refreshRateMs || 500;
+    _this.baseUrl = baseUrl || DEFAULT_API[_this.env];
     _this.clientId = clientId;
-    _this.refreshRateMs = refreshRateMs || 5000;
     return _this;
   }
 
@@ -99,23 +120,24 @@ var WebSDK = function (_EventEmitter) {
 
 
                 this.emit("code-refresh", response);
+                this._currentSessionId = response.session;
 
                 // Start watching for status
-                this._waitingLoginComplete(response.session);
+                this.stopTicket = this._waitingLoginComplete(response.session);
 
                 return _context.abrupt("return", response);
 
-              case 10:
-                _context.prev = 10;
+              case 11:
+                _context.prev = 11;
                 _context.t0 = _context["catch"](1);
                 throw _context.t0;
 
-              case 13:
+              case 14:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[1, 10]]);
+        }, _callee, this, [[1, 11]]);
       }));
 
       function generateSSOData() {
@@ -124,52 +146,74 @@ var WebSDK = function (_EventEmitter) {
 
       return generateSSOData;
     }()
+
+    /**
+     * Deconstructor
+     *
+     */
+
   }, {
-    key: "_waitingLoginComplete",
+    key: "destroy",
+    value: function destroy() {
+      if (this.stopTicket) {
+        this.stopTicket();
+        this.stopTicket = null;
+      }
+    }
+
+    /**
+     * Generate appLink string
+     * Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
+     */
+
+  }, {
+    key: "getApplink",
     value: function () {
-      var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3(sessionId) {
+      var _ref3 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee3() {
         var _this2 = this;
 
         return _regenerator2.default.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                if (this.timeOutTicket) {
-                  clearInterval(this.timeOutTicket);
-                  this.timeOutTicket = null;
-                }
-
-                this.timeOutTicket = setInterval(function () {
-                  var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(_) {
-                    var response, status;
+                return _context3.abrupt("return", new _promise2.default(function () {
+                  var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(resolve, reject) {
+                    var applinkString, prefix;
                     return _regenerator2.default.wrap(function _callee2$(_context2) {
                       while (1) {
                         switch (_context2.prev = _context2.next) {
                           case 0:
-                            _context2.next = 2;
-                            return _this2._refreshSessionTicket(sessionId);
+                            applinkString = void 0;
 
-                          case 2:
-                            response = _context2.sent;
-
-                            if (response) {
-                              _context2.next = 5;
+                          case 1:
+                            if (!true) {
+                              _context2.next = 10;
                               break;
                             }
 
-                            return _context2.abrupt("return");
+                            if (!_this2._currentSessionId) {
+                              _context2.next = 6;
+                              break;
+                            }
 
-                          case 5:
-                            status = response.status;
+                            prefix = APPLINK_ENV[_this2.env];
 
+                            applinkString = prefix + "://sso/" + _this2.clientId + "/" + _this2._currentSessionId;
+                            return _context2.abrupt("break", 10);
 
-                            if (status === "success" || status === "failed") {
-                              _this2.emit("sso-complete", response);
-                              clearInterval(_this2.timeOutTicket);
-                              _this2.timeOutTicket = null;
-                            } else if (status === "processing") _this2.emit("sso-processing", response);
+                          case 6:
+                            _context2.next = 8;
+                            return _this2._sleep(_this2.refreshRateMs / 2);
 
-                          case 7:
+                          case 8:
+                            _context2.next = 1;
+                            break;
+
+                          case 10:
+
+                            resolve(applinkString);
+
+                          case 11:
                           case "end":
                             return _context2.stop();
                         }
@@ -177,12 +221,12 @@ var WebSDK = function (_EventEmitter) {
                     }, _callee2, _this2);
                   }));
 
-                  return function (_x2) {
+                  return function (_x, _x2) {
                     return _ref4.apply(this, arguments);
                   };
-                }(), this.refreshRateMs);
+                }()));
 
-              case 2:
+              case 1:
               case "end":
                 return _context3.stop();
             }
@@ -190,25 +234,126 @@ var WebSDK = function (_EventEmitter) {
         }, _callee3, this);
       }));
 
-      function _waitingLoginComplete(_x) {
+      function getApplink() {
         return _ref3.apply(this, arguments);
       }
 
-      return _waitingLoginComplete;
+      return getApplink;
     }()
+  }, {
+    key: "_waitingLoginComplete",
+    value: function _waitingLoginComplete(sessionId) {
+      if (this.stopTicket) {
+        this.stopTicket();
+        this.stopTicket = null;
+      }
+
+      var self = this;
+      var refreshRateMs = this.refreshRateMs,
+          _sleep = this._sleep;
+
+
+      function InternalJob() {
+        var _isRunning = true;
+
+        this.start = function () {
+          var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
+            var response, data, status;
+            return _regenerator2.default.wrap(function _callee4$(_context4) {
+              while (1) {
+                switch (_context4.prev = _context4.next) {
+                  case 0:
+                    if (!_isRunning) {
+                      _context4.next = 22;
+                      break;
+                    }
+
+                    _context4.next = 3;
+                    return self._refreshSessionTicket(sessionId);
+
+                  case 3:
+                    response = _context4.sent;
+
+                    if (_isRunning) {
+                      _context4.next = 6;
+                      break;
+                    }
+
+                    return _context4.abrupt("return");
+
+                  case 6:
+                    if (response) {
+                      _context4.next = 10;
+                      break;
+                    }
+
+                    _context4.next = 9;
+                    return _sleep(refreshRateMs);
+
+                  case 9:
+                    return _context4.abrupt("continue", 0);
+
+                  case 10:
+                    data = response.data;
+                    status = data.status;
+
+                    if (!(status === "success" || status === "failed")) {
+                      _context4.next = 17;
+                      break;
+                    }
+
+                    self.emit("sso-complete", data);
+                    return _context4.abrupt("break", 22);
+
+                  case 17:
+                    if (status === "processing") self.emit("sso-processing", data);
+
+                  case 18:
+                    _context4.next = 20;
+                    return _sleep(refreshRateMs);
+
+                  case 20:
+                    _context4.next = 0;
+                    break;
+
+                  case 22:
+                  case "end":
+                    return _context4.stop();
+                }
+              }
+            }, _callee4, this);
+          }));
+
+          function start() {
+            return _ref5.apply(this, arguments);
+          }
+
+          return start;
+        }();
+
+        this.stop = function stop() {
+          _isRunning = false;
+        };
+      }
+
+      var ins = new InternalJob();
+      ins.start();
+
+      return ins.stop;
+    }
   }, {
     key: "_refreshSessionTicket",
     value: function () {
-      var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4(sessionId) {
+      var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(sessionId) {
         var baseUrl, response;
-        return _regenerator2.default.wrap(function _callee4$(_context4) {
+        return _regenerator2.default.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                _context4.prev = 0;
+                _context5.prev = 0;
                 baseUrl = this.baseUrl;
-                _context4.next = 4;
-                return this._fetchAsync(baseUrl + "/api/v0.3/service/register/" + sessionId, {
+                _context5.next = 4;
+                return this._fetchAsync(baseUrl + "/api/v0.3/service/registerPolling/" + sessionId, {
                   method: "GET",
                   headers: {
                     "Content-Type": "application/json"
@@ -216,24 +361,24 @@ var WebSDK = function (_EventEmitter) {
                 });
 
               case 4:
-                response = _context4.sent;
-                return _context4.abrupt("return", response);
+                response = _context5.sent;
+                return _context5.abrupt("return", response);
 
               case 8:
-                _context4.prev = 8;
-                _context4.t0 = _context4["catch"](0);
-                return _context4.abrupt("return", null);
+                _context5.prev = 8;
+                _context5.t0 = _context5["catch"](0);
+                return _context5.abrupt("return", null);
 
               case 11:
               case "end":
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4, this, [[0, 8]]);
+        }, _callee5, this, [[0, 8]]);
       }));
 
       function _refreshSessionTicket(_x3) {
-        return _ref5.apply(this, arguments);
+        return _ref6.apply(this, arguments);
       }
 
       return _refreshSessionTicket;
@@ -241,42 +386,67 @@ var WebSDK = function (_EventEmitter) {
   }, {
     key: "_fetchAsync",
     value: function () {
-      var _ref6 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee5(url, configs) {
+      var _ref7 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee6(url, configs) {
         var response;
-        return _regenerator2.default.wrap(function _callee5$(_context5) {
+        return _regenerator2.default.wrap(function _callee6$(_context6) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context6.prev = _context6.next) {
               case 0:
-                _context5.next = 2;
+                _context6.next = 2;
                 return fetch(url, configs);
 
               case 2:
-                response = _context5.sent;
+                response = _context6.sent;
 
                 if (!response.ok) {
-                  _context5.next = 7;
+                  _context6.next = 5;
                   break;
                 }
 
-                _context5.next = 6;
-                return response.json();
+                return _context6.abrupt("return", response.json());
 
-              case 6:
-                return _context5.abrupt("return", _context5.sent);
-
-              case 7:
+              case 5:
               case "end":
-                return _context5.stop();
+                return _context6.stop();
             }
           }
-        }, _callee5, this);
+        }, _callee6, this);
       }));
 
       function _fetchAsync(_x4, _x5) {
-        return _ref6.apply(this, arguments);
+        return _ref7.apply(this, arguments);
       }
 
       return _fetchAsync;
+    }()
+  }, {
+    key: "_sleep",
+    value: function () {
+      var _ref8 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee7() {
+        var timeMs = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+        return _regenerator2.default.wrap(function _callee7$(_context7) {
+          while (1) {
+            switch (_context7.prev = _context7.next) {
+              case 0:
+                return _context7.abrupt("return", new _promise2.default(function (resolve, reject) {
+                  setTimeout(function () {
+                    resolve();
+                  }, timeMs);
+                }));
+
+              case 1:
+              case "end":
+                return _context7.stop();
+            }
+          }
+        }, _callee7, this);
+      }));
+
+      function _sleep() {
+        return _ref8.apply(this, arguments);
+      }
+
+      return _sleep;
     }()
   }]);
   return WebSDK;
@@ -292,12 +462,11 @@ exports.default = WebSDK;
  * @typedef {object} ConstructorParams
  * @property {string} baseUrl - Blockpass url.
  * @property {string} clientId - Blockpass ClientId (obtain when register with Blockpass platform). 
- * @property {number} refreshRateMs - Refresh rate in miliseconds (default-5000). 
  
  */
 
 /**
- * Generated session code, can only be used once. Life cycles (created -> processing -> success|failed) 
+ * Generated session code, can only be used once. Life cycles (created -> processing -> success|failed)
  * Client must refresh code after sso failed / timeout
  * @event WebSDK#code-refresh
  * @type {object}
@@ -318,9 +487,9 @@ exports.default = WebSDK;
  * @property {string} status - status of session code (success|failed)
  * @property {object} extraData - extraData
  * @property {string} extraData.sessionData - session code
- * @property {object} extraData.extraData - Services' extra data 
+ * @property {object} extraData.extraData - Services' extra data
  */
-},{"babel-runtime/core-js/object/get-prototype-of":5,"babel-runtime/helpers/asyncToGenerator":10,"babel-runtime/helpers/classCallCheck":11,"babel-runtime/helpers/createClass":12,"babel-runtime/helpers/inherits":13,"babel-runtime/helpers/possibleConstructorReturn":14,"babel-runtime/regenerator":16,"events":111}],2:[function(require,module,exports){
+},{"babel-runtime/core-js/object/get-prototype-of":5,"babel-runtime/core-js/promise":7,"babel-runtime/helpers/asyncToGenerator":10,"babel-runtime/helpers/classCallCheck":11,"babel-runtime/helpers/createClass":12,"babel-runtime/helpers/inherits":13,"babel-runtime/helpers/possibleConstructorReturn":14,"babel-runtime/regenerator":16,"events":111}],2:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
