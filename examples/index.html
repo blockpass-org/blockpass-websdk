@@ -21,12 +21,12 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-4">
-                <h3 style="text-align: center" >Session Code</h3>
+                <h3 style="text-align: center">Session Code</h3>
                 <h4>Cli params: </h4>
                 <p id="step1-content"></p>
 
                 <h4>AppLink </h4>
-                <a id="step1-applink" >ClickMe</a>
+                <a id="step1-applink">ClickMe</a>
 
                 <h4>Mobile QR: </h4>
                 <p>
@@ -34,11 +34,11 @@
                 </p>
             </div>
             <div class="col-sm-4">
-                <h3 style="text-align: center" >Ticket Status</h3>
-                <p id="step2-content" style="text-align: center" >created</p>
+                <h3 style="text-align: center">Ticket Status</h3>
+                <p id="step2-content" style="text-align: center">created</p>
             </div>
             <div class="col-sm-4">
-                <h3 style="text-align: center" >Result</h3>
+                <h3 style="text-align: center">Result</h3>
                 <p id="step3-content"></p>
             </div>
         </div>
@@ -48,6 +48,7 @@
     <script>
         const clientId = '3rd_service_demo'
         const env = 'local'
+        const refId = undefined
 
         /** Blockpass SSO session generated
          *  @param {Object} params - session object
@@ -57,7 +58,8 @@
             document.getElementById('step1-content').innerHTML = `3rd-sso ${clientId} ${params.session}`
             document.getElementById('step1-qr').src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify({
                 clientId,
-                session: params.session
+                session: params.session,
+                refId
             })}`
         }
 
@@ -72,7 +74,7 @@
 
             document.getElementById('step2-content').innerHTML = 'processing'
         }
-        
+
         /** Blockpass SSO result
          *  @param {Object} params - session object
          *  @param {String} params.status - status (sucess|failed)
@@ -100,10 +102,10 @@
             sdk.on('code-refresh', onBlockpassCodeRefresh)
             sdk.on('sso-processing', onBlockpassProcessing)
             sdk.on('sso-complete', onBlockpassSSoResult)
-            
+
             // refresh new sso code
             sdk.generateSSOData();
-            
+
             // appLink ( mobile only )
             sdk.getApplink().then(appLinkUrl => {
                 document.getElementById('step1-applink').href = appLinkUrl
