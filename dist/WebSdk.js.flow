@@ -128,15 +128,15 @@ class WebSDK extends EventEmitter {
     function InternalJob() {
       let _isRunning = true;
 
-      this.start = async function start() {
+      this.start = async () => {
         while (_isRunning) {
           const response = await self._refreshSessionTicket(sessionId);
 
           if (!_isRunning) return;
-
           if (!response) {
-            await WebSDK._sleep(refreshRateMs);
-            continue;
+            this.stop();
+            self.emit("code-expired");
+            break;
           }
 
           const { data } = response;
@@ -176,6 +176,7 @@ class WebSDK extends EventEmitter {
       );
       return response;
     } catch (ex) {
+      console.error(ex);
       return null;
     }
   }
@@ -231,4 +232,10 @@ export default WebSDK;
  * @property {object} extraData - extraData
  * @property {string} extraData.sessionData - session code
  * @property {object} extraData.extraData - Services' extra data
+ */
+
+/**
+ * Session code expired
+ * @event WebSDK#code-expired
+ * @type {object}
  */

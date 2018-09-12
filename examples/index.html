@@ -91,6 +91,14 @@
             document.getElementById('step3-content').innerHTML = `<pre>${JSON.stringify(params, null, 2)}</pre>`
         }
 
+        function onSessionExpired(params) {
+            // session code invalid
+            document.getElementById('step1-content').innerHTML = ``
+            document.getElementById('step1-qr').src = ``
+
+            document.getElementById('step2-content').innerHTML = 'Session Expired. Please refresh page'
+        }
+
         let sdk = null;
         window.addEventListener('load', _ => {
             sdk = new window.Blockpass.WebSDK({
@@ -102,7 +110,12 @@
             sdk.on('code-refresh', onBlockpassCodeRefresh)
             sdk.on('sso-processing', onBlockpassProcessing)
             sdk.on('sso-complete', onBlockpassSSoResult)
+            sdk.on('code-expired', onSessionExpired)
 
+            reset()
+        })
+
+        function reset() {
             // refresh new sso code
             sdk.generateSSOData();
 
@@ -110,7 +123,7 @@
             sdk.getApplink().then(appLinkUrl => {
                 document.getElementById('step1-applink').href = appLinkUrl
             })
-        })
+        }
 
     </script>
 

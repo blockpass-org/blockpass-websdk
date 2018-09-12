@@ -252,82 +252,74 @@ var WebSDK = function (_EventEmitter) {
 
 
       function InternalJob() {
+        var _this3 = this;
+
         var _isRunning = true;
 
-        this.start = function () {
-          var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
-            var response, data, status;
-            return _regenerator2.default.wrap(function _callee4$(_context4) {
-              while (1) {
-                switch (_context4.prev = _context4.next) {
-                  case 0:
-                    if (!_isRunning) {
-                      _context4.next = 22;
-                      break;
-                    }
-
-                    _context4.next = 3;
-                    return self._refreshSessionTicket(sessionId);
-
-                  case 3:
-                    response = _context4.sent;
-
-                    if (_isRunning) {
-                      _context4.next = 6;
-                      break;
-                    }
-
-                    return _context4.abrupt("return");
-
-                  case 6:
-                    if (response) {
-                      _context4.next = 10;
-                      break;
-                    }
-
-                    _context4.next = 9;
-                    return WebSDK._sleep(refreshRateMs);
-
-                  case 9:
-                    return _context4.abrupt("continue", 0);
-
-                  case 10:
-                    data = response.data;
-                    status = data.status;
-
-                    if (!(status === "success" || status === "failed")) {
-                      _context4.next = 17;
-                      break;
-                    }
-
-                    self.emit("sso-complete", data);
-                    return _context4.abrupt("break", 22);
-
-                  case 17:
-                    if (status === "processing") self.emit("sso-processing", data);
-
-                  case 18:
-                    _context4.next = 20;
-                    return WebSDK._sleep(refreshRateMs);
-
-                  case 20:
-                    _context4.next = 0;
+        this.start = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
+          var response, data, status;
+          return _regenerator2.default.wrap(function _callee4$(_context4) {
+            while (1) {
+              switch (_context4.prev = _context4.next) {
+                case 0:
+                  if (!_isRunning) {
+                    _context4.next = 22;
                     break;
+                  }
 
-                  case 22:
-                  case "end":
-                    return _context4.stop();
-                }
+                  _context4.next = 3;
+                  return self._refreshSessionTicket(sessionId);
+
+                case 3:
+                  response = _context4.sent;
+
+                  if (_isRunning) {
+                    _context4.next = 6;
+                    break;
+                  }
+
+                  return _context4.abrupt("return");
+
+                case 6:
+                  if (response) {
+                    _context4.next = 10;
+                    break;
+                  }
+
+                  _this3.stop();
+                  self.emit("code-expired");
+                  return _context4.abrupt("break", 22);
+
+                case 10:
+                  data = response.data;
+                  status = data.status;
+
+                  if (!(status === "success" || status === "failed")) {
+                    _context4.next = 17;
+                    break;
+                  }
+
+                  self.emit("sso-complete", data);
+                  return _context4.abrupt("break", 22);
+
+                case 17:
+                  if (status === "processing") self.emit("sso-processing", data);
+
+                case 18:
+                  _context4.next = 20;
+                  return WebSDK._sleep(refreshRateMs);
+
+                case 20:
+                  _context4.next = 0;
+                  break;
+
+                case 22:
+                case "end":
+                  return _context4.stop();
               }
-            }, _callee4, this);
-          }));
-
-          function start() {
-            return _ref5.apply(this, arguments);
-          }
-
-          return start;
-        }();
+            }
+          }, _callee4, _this3);
+        }));
 
         this.stop = function stop() {
           _isRunning = false;
@@ -365,9 +357,11 @@ var WebSDK = function (_EventEmitter) {
               case 8:
                 _context5.prev = 8;
                 _context5.t0 = _context5["catch"](0);
+
+                console.error(_context5.t0);
                 return _context5.abrupt("return", null);
 
-              case 11:
+              case 12:
               case "end":
                 return _context5.stop();
             }
@@ -490,4 +484,10 @@ exports.default = WebSDK;
  * @property {object} extraData - extraData
  * @property {string} extraData.sessionData - session code
  * @property {object} extraData.extraData - Services' extra data
+ */
+
+/**
+ * Session code expired
+ * @event WebSDK#code-expired
+ * @type {object}
  */

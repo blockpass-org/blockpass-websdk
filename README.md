@@ -69,9 +69,18 @@ function onBlockpassSSoResult(params) {
   // sso complete. handle your logic here
 }
 
+function onBlockpassSessionExpired() {
+  // session code expired.
+  // Note: You can reset new code via
+  //    sdk.generateSSOData()
+  //
+}
+
+// Setup events handler
 sdk.on('code-refresh', onBlockpassCodeRefresh)
 sdk.on('sso-processing', onBlockpassProcessing)
 sdk.on('sso-complete', onBlockpassSSoResult)
+sdk.on('code-expired', onBlockpassSessionExpired)
 
 // request for new sso code
 sdk.generateSSOData()
@@ -108,6 +117,7 @@ $ npm run watch # watch code changes and run scripts automatically
 -   [WebSDK#code-refresh](#websdkcode-refresh)
 -   [WebSDK#sso-processing](#websdksso-processing)
 -   [WebSDK#sso-complete](#websdksso-complete)
+-   [WebSDK#code-expired](#websdkcode-expired)
 
 ### WebSDK
 
@@ -180,6 +190,12 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 -   `extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** extraData
     -   `extraData.sessionData` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** session code
     -   `extraData.extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Services' extra data
+
+### WebSDK#code-expired
+
+Session code expired
+
+Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
 
 ## License
 
