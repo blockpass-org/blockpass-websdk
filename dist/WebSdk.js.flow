@@ -20,6 +20,8 @@ const DEFAULT_API = {
  * Blockpass WebSDK
  */
 class WebSDK extends EventEmitter {
+  static VERSION = "2.1";
+
   baseUrl: string;
   clientId: string;
   stopTicket: any;

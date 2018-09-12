@@ -453,6 +453,7 @@ var WebSDK = function (_EventEmitter) {
   return WebSDK;
 }(_events2.default);
 
+WebSDK.VERSION = "2.1";
 exports.default = WebSDK;
 
 /**
