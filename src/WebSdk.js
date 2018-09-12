@@ -60,20 +60,20 @@ class WebSDK extends EventEmitter {
     const { baseUrl, clientId } = this;
     try {
       const response = await WebSDK._fetchAsync(
-        `${baseUrl}/api/v0.3/service/register/${clientId}`,
+        `${baseUrl}/api/3rdService/register/session/${clientId}`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json"
           }
         }
       );
-
-      this.emit("code-refresh", response);
-      this._currentSessionId = response.session;
+      const { data } = response;
+      this.emit("code-refresh", data);
+      this._currentSessionId = data.session;
 
       // Start watching for status
-      this.stopTicket = this._waitingLoginComplete(response.session);
+      this.stopTicket = this._waitingLoginComplete(this._currentSessionId);
 
       return response;
     } catch (err) {
@@ -164,7 +164,7 @@ class WebSDK extends EventEmitter {
     try {
       const { baseUrl } = this;
       const response = await WebSDK._fetchAsync(
-        `${baseUrl}/api/v0.3/service/registerPolling/${sessionId}`,
+        `${baseUrl}/api/3rdService/register/status/${sessionId}`,
         {
           method: "GET",
           headers: {
