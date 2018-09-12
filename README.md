@@ -13,7 +13,7 @@ This packages contains:
 1.  Add blockpass-web package via `<script>` tag
 
 ```html
-    <script src="../dist/browser/blockpass.dev.js"></script>
+    <script src="https://cdn.blockpass.org/sdk/v2/blockpass.dev.js"></script>
 ```
 
 2.  Init SDK

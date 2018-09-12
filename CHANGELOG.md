@@ -1,14 +1,10 @@
-## v2.0.1
-
-* Upgrade to BP-Core-Api v4 (v3 is going to deprecate soon)
-
 ## v2.0
 
-* Using Long pooling api ( reduce work load to our Core API )
-* Simplify constructor ( only need env and clientId )
-  Where env:
-  * staging: Testing env
-  * prod: Production env
+* Using long pooling api
+* Simplify constructor (only need `env` and `clientId`)
+  Where `env`:
+  * `staging`: Testing env
+  * `prod`: Production env
 
 ## v1.0
 
