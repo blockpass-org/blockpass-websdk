@@ -4,9 +4,9 @@
 
 This packages contains:
 
-* ES6 source code `src/`
-* Transpiler for node (below 6) `dist/node`
-* Transpiler for web-browser `dist/browser`
+-   ES6 source code `src/`
+-   Transpiler for node (below 6) `dist/node`
+-   Transpiler for web-browser `dist/browser`
 
 ## Getting started (browser)
 
@@ -19,14 +19,22 @@ This packages contains:
 2.  Init SDK
 
 ```javascript
+/*
+Blockpass Clientid
+*/
 const clientId = '...'
-const env = 'staging|prod'
 
 /*
 Blockpass Environments:
   - staging: Our testing enviroment (Blockpass partner and tester)
   - prod: Live enviroment of Blockpass
 */
+const env = 'staging|prod'
+
+/*
+Reference Id: Your generated code. Which use to match KycRecord with your userId
+*/
+const refId = ''
 
 sdk = new window.Blockpass.WebSDK({
   clientId,
@@ -47,7 +55,8 @@ function onBlockpassCodeRefresh(params) {
     'step1-qr'
   ).src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify({
     clientId: '...',
-    session: params.session
+    session: params.session,
+    refId
   })}`
 }
 
@@ -91,14 +100,14 @@ $ npm run watch # watch code changes and run scripts automatically
 
 #### Table of Contents
 
-* [WebSDK](#websdk)
-  * [generateSSOData](#generatessodata)
-  * [destroy](#destroy)
-  * [getApplink](#getapplink)
-* [ConstructorParams](#constructorparams)
-* [WebSDK#code-refresh](#websdkcode-refresh)
-* [WebSDK#sso-processing](#websdksso-processing)
-* [WebSDK#sso-complete](#websdksso-complete)
+-   [WebSDK](#websdk)
+    -   [generateSSOData](#generatessodata)
+    -   [destroy](#destroy)
+    -   [getApplink](#getapplink)
+-   [ConstructorParams](#constructorparams)
+-   [WebSDK#code-refresh](#websdkcode-refresh)
+-   [WebSDK#sso-processing](#websdksso-processing)
+-   [WebSDK#sso-complete](#websdksso-complete)
 
 ### WebSDK
 
@@ -108,7 +117,7 @@ Blockpass WebSDK
 
 **Parameters**
 
-* `configData` **...[ConstructorParams](#constructorparams)**
+-   `configData` **...[ConstructorParams](#constructorparams)** 
 
 #### generateSSOData
 
@@ -123,11 +132,11 @@ Deconstructor
 Generate appLink string
 Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
 
-Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)?>**
+Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)?>** 
 
-###
+### 
 
----
+* * *
 
 ### ConstructorParams
 
@@ -135,8 +144,8 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 **Properties**
 
-* `baseUrl` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass url.
-* `clientId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass ClientId (obtain when register with Blockpass platform).
+-   `baseUrl` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass url.
+-   `clientId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass ClientId (obtain when register with Blockpass platform).
 
 ### WebSDK#code-refresh
 
@@ -147,7 +156,7 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 **Properties**
 
-* `session` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** sessionID
+-   `session` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** sessionID
 
 ### WebSDK#sso-processing
 
@@ -157,7 +166,7 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 **Properties**
 
-* `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code
+-   `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code
 
 ### WebSDK#sso-complete
 
@@ -167,10 +176,10 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 **Properties**
 
-* `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code (success|failed)
-* `extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** extraData
-  * `extraData.sessionData` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** session code
-  * `extraData.extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Services' extra data
+-   `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code (success|failed)
+-   `extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** extraData
+    -   `extraData.sessionData` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** session code
+    -   `extraData.extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Services' extra data
 
 ## License
 
