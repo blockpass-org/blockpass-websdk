@@ -99,7 +99,7 @@ var WebSDK = function (_EventEmitter) {
     key: "generateSSOData",
     value: function () {
       var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
-        var baseUrl, clientId, response;
+        var baseUrl, clientId, response, data;
         return _regenerator2.default.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
@@ -107,8 +107,8 @@ var WebSDK = function (_EventEmitter) {
                 baseUrl = this.baseUrl, clientId = this.clientId;
                 _context.prev = 1;
                 _context.next = 4;
-                return this._fetchAsync(baseUrl + "/api/v0.3/service/register/" + clientId, {
-                  method: "POST",
+                return WebSDK._fetchAsync(baseUrl + "/api/3rdService/register/session/" + clientId, {
+                  method: "GET",
                   headers: {
                     "Content-Type": "application/json"
                   }
@@ -116,27 +116,27 @@ var WebSDK = function (_EventEmitter) {
 
               case 4:
                 response = _context.sent;
+                data = response.data;
 
-
-                this.emit("code-refresh", response);
-                this._currentSessionId = response.session;
+                this.emit("code-refresh", data);
+                this._currentSessionId = data.session;
 
                 // Start watching for status
-                this.stopTicket = this._waitingLoginComplete(response.session);
+                this.stopTicket = this._waitingLoginComplete(this._currentSessionId);
 
                 return _context.abrupt("return", response);
 
-              case 11:
-                _context.prev = 11;
+              case 12:
+                _context.prev = 12;
                 _context.t0 = _context["catch"](1);
                 throw _context.t0;
 
-              case 14:
+              case 15:
               case "end":
                 return _context.stop();
             }
           }
-        }, _callee, this, [[1, 11]]);
+        }, _callee, this, [[1, 12]]);
       }));
 
       function generateSSOData() {
@@ -176,7 +176,7 @@ var WebSDK = function (_EventEmitter) {
             switch (_context3.prev = _context3.next) {
               case 0:
                 return _context3.abrupt("return", new _promise2.default(function () {
-                  var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(resolve, reject) {
+                  var _ref4 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(resolve) {
                     var applinkString, prefix;
                     return _regenerator2.default.wrap(function _callee2$(_context2) {
                       while (1) {
@@ -202,7 +202,7 @@ var WebSDK = function (_EventEmitter) {
 
                           case 6:
                             _context2.next = 8;
-                            return _this2._sleep(_this2.refreshRateMs / 2);
+                            return WebSDK._sleep(_this2.refreshRateMs / 2);
 
                           case 8:
                             _context2.next = 1;
@@ -220,7 +220,7 @@ var WebSDK = function (_EventEmitter) {
                     }, _callee2, _this2);
                   }));
 
-                  return function (_x, _x2) {
+                  return function (_x) {
                     return _ref4.apply(this, arguments);
                   };
                 }()));
@@ -248,87 +248,78 @@ var WebSDK = function (_EventEmitter) {
       }
 
       var self = this;
-      var refreshRateMs = this.refreshRateMs,
-          _sleep = this._sleep;
+      var refreshRateMs = this.refreshRateMs;
 
 
       function InternalJob() {
+        var _this3 = this;
+
         var _isRunning = true;
 
-        this.start = function () {
-          var _ref5 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
-            var response, data, status;
-            return _regenerator2.default.wrap(function _callee4$(_context4) {
-              while (1) {
-                switch (_context4.prev = _context4.next) {
-                  case 0:
-                    if (!_isRunning) {
-                      _context4.next = 22;
-                      break;
-                    }
-
-                    _context4.next = 3;
-                    return self._refreshSessionTicket(sessionId);
-
-                  case 3:
-                    response = _context4.sent;
-
-                    if (_isRunning) {
-                      _context4.next = 6;
-                      break;
-                    }
-
-                    return _context4.abrupt("return");
-
-                  case 6:
-                    if (response) {
-                      _context4.next = 10;
-                      break;
-                    }
-
-                    _context4.next = 9;
-                    return _sleep(refreshRateMs);
-
-                  case 9:
-                    return _context4.abrupt("continue", 0);
-
-                  case 10:
-                    data = response.data;
-                    status = data.status;
-
-                    if (!(status === "success" || status === "failed")) {
-                      _context4.next = 17;
-                      break;
-                    }
-
-                    self.emit("sso-complete", data);
-                    return _context4.abrupt("break", 22);
-
-                  case 17:
-                    if (status === "processing") self.emit("sso-processing", data);
-
-                  case 18:
-                    _context4.next = 20;
-                    return _sleep(refreshRateMs);
-
-                  case 20:
-                    _context4.next = 0;
+        this.start = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee4() {
+          var response, data, status;
+          return _regenerator2.default.wrap(function _callee4$(_context4) {
+            while (1) {
+              switch (_context4.prev = _context4.next) {
+                case 0:
+                  if (!_isRunning) {
+                    _context4.next = 22;
                     break;
+                  }
 
-                  case 22:
-                  case "end":
-                    return _context4.stop();
-                }
+                  _context4.next = 3;
+                  return self._refreshSessionTicket(sessionId);
+
+                case 3:
+                  response = _context4.sent;
+
+                  if (_isRunning) {
+                    _context4.next = 6;
+                    break;
+                  }
+
+                  return _context4.abrupt("return");
+
+                case 6:
+                  if (response) {
+                    _context4.next = 10;
+                    break;
+                  }
+
+                  _this3.stop();
+                  self.emit("code-expired");
+                  return _context4.abrupt("break", 22);
+
+                case 10:
+                  data = response.data;
+                  status = data.status;
+
+                  if (!(status === "success" || status === "failed")) {
+                    _context4.next = 17;
+                    break;
+                  }
+
+                  self.emit("sso-complete", data);
+                  return _context4.abrupt("break", 22);
+
+                case 17:
+                  if (status === "processing") self.emit("sso-processing", data);
+
+                case 18:
+                  _context4.next = 20;
+                  return WebSDK._sleep(refreshRateMs);
+
+                case 20:
+                  _context4.next = 0;
+                  break;
+
+                case 22:
+                case "end":
+                  return _context4.stop();
               }
-            }, _callee4, this);
-          }));
-
-          function start() {
-            return _ref5.apply(this, arguments);
-          }
-
-          return start;
-        }();
+            }
+          }, _callee4, _this3);
+        }));
 
         this.stop = function stop() {
           _isRunning = false;
@@ -352,7 +343,7 @@ var WebSDK = function (_EventEmitter) {
                 _context5.prev = 0;
                 baseUrl = this.baseUrl;
                 _context5.next = 4;
-                return this._fetchAsync(baseUrl + "/api/v0.3/service/registerPolling/" + sessionId, {
+                return WebSDK._fetchAsync(baseUrl + "/api/3rdService/register/status/" + sessionId, {
                   method: "GET",
                   headers: {
                     "Content-Type": "application/json"
@@ -366,9 +357,11 @@ var WebSDK = function (_EventEmitter) {
               case 8:
                 _context5.prev = 8;
                 _context5.t0 = _context5["catch"](0);
+
+                console.error(_context5.t0);
                 return _context5.abrupt("return", null);
 
-              case 11:
+              case 12:
               case "end":
                 return _context5.stop();
             }
@@ -376,13 +369,13 @@ var WebSDK = function (_EventEmitter) {
         }, _callee5, this, [[0, 8]]);
       }));
 
-      function _refreshSessionTicket(_x3) {
+      function _refreshSessionTicket(_x2) {
         return _ref6.apply(this, arguments);
       }
 
       return _refreshSessionTicket;
     }()
-  }, {
+  }], [{
     key: "_fetchAsync",
     value: function () {
       var _ref7 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee6(url, configs) {
@@ -392,7 +385,7 @@ var WebSDK = function (_EventEmitter) {
             switch (_context6.prev = _context6.next) {
               case 0:
                 _context6.next = 2;
-                return fetch(url, configs);
+                return window.fetch(url, configs);
 
               case 2:
                 response = _context6.sent;
@@ -405,6 +398,9 @@ var WebSDK = function (_EventEmitter) {
                 return _context6.abrupt("return", response.json());
 
               case 5:
+                return _context6.abrupt("return", null);
+
+              case 6:
               case "end":
                 return _context6.stop();
             }
@@ -412,7 +408,7 @@ var WebSDK = function (_EventEmitter) {
         }, _callee6, this);
       }));
 
-      function _fetchAsync(_x4, _x5) {
+      function _fetchAsync(_x3, _x4) {
         return _ref7.apply(this, arguments);
       }
 
@@ -427,7 +423,7 @@ var WebSDK = function (_EventEmitter) {
           while (1) {
             switch (_context7.prev = _context7.next) {
               case 0:
-                return _context7.abrupt("return", new _promise2.default(function (resolve, reject) {
+                return _context7.abrupt("return", new _promise2.default(function (resolve) {
                   setTimeout(function () {
                     resolve();
                   }, timeMs);
@@ -451,6 +447,7 @@ var WebSDK = function (_EventEmitter) {
   return WebSDK;
 }(_events2.default);
 
+WebSDK.VERSION = "2.1";
 exports.default = WebSDK;
 
 /**
@@ -487,4 +484,10 @@ exports.default = WebSDK;
  * @property {object} extraData - extraData
  * @property {string} extraData.sessionData - session code
  * @property {object} extraData.extraData - Services' extra data
+ */
+
+/**
+ * Session code expired
+ * @event WebSDK#code-expired
+ * @type {object}
  */

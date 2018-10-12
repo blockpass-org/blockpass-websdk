@@ -20,6 +20,8 @@ const DEFAULT_API = {
  * Blockpass WebSDK
  */
 class WebSDK extends EventEmitter {
+  static VERSION = "2.1";
+
   baseUrl: string;
   clientId: string;
   stopTicket: any;
@@ -59,21 +61,21 @@ class WebSDK extends EventEmitter {
   async generateSSOData() {
     const { baseUrl, clientId } = this;
     try {
-      const response = await this._fetchAsync(
-        `${baseUrl}/api/v0.3/service/register/${clientId}`,
+      const response = await WebSDK._fetchAsync(
+        `${baseUrl}/api/3rdService/register/session/${clientId}`,
         {
-          method: "POST",
+          method: "GET",
           headers: {
             "Content-Type": "application/json"
           }
         }
       );
-
-      this.emit("code-refresh", response);
-      this._currentSessionId = response.session;
+      const { data } = response;
+      this.emit("code-refresh", data);
+      this._currentSessionId = data.session;
 
       // Start watching for status
-      this.stopTicket = this._waitingLoginComplete(response.session);
+      this.stopTicket = this._waitingLoginComplete(this._currentSessionId);
 
       return response;
     } catch (err) {
@@ -97,7 +99,7 @@ class WebSDK extends EventEmitter {
    * Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
    */
   async getApplink(): Promise<?string> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
       let applinkString;
       while (true) {
         if (this._currentSessionId) {
@@ -107,7 +109,7 @@ class WebSDK extends EventEmitter {
           }`;
           break;
         }
-        await this._sleep(this.refreshRateMs / 2);
+        await WebSDK._sleep(this.refreshRateMs / 2);
       }
 
       resolve(applinkString);
@@ -121,20 +123,20 @@ class WebSDK extends EventEmitter {
     }
 
     const self = this;
-    const { refreshRateMs, _sleep } = this;
+    const { refreshRateMs } = this;
 
     function InternalJob() {
       let _isRunning = true;
 
-      this.start = async function start() {
+      this.start = async () => {
         while (_isRunning) {
           const response = await self._refreshSessionTicket(sessionId);
 
           if (!_isRunning) return;
-
           if (!response) {
-            await _sleep(refreshRateMs);
-            continue;
+            this.stop();
+            self.emit("code-expired");
+            break;
           }
 
           const { data } = response;
@@ -145,7 +147,7 @@ class WebSDK extends EventEmitter {
             break;
           } else if (status === "processing") self.emit("sso-processing", data);
 
-          await _sleep(refreshRateMs);
+          await WebSDK._sleep(refreshRateMs);
         }
       };
 
@@ -163,8 +165,8 @@ class WebSDK extends EventEmitter {
   async _refreshSessionTicket(sessionId: string): any {
     try {
       const { baseUrl } = this;
-      const response = await this._fetchAsync(
-        `${baseUrl}/api/v0.3/service/registerPolling/${sessionId}`,
+      const response = await WebSDK._fetchAsync(
+        `${baseUrl}/api/3rdService/register/status/${sessionId}`,
         {
           method: "GET",
           headers: {
@@ -174,17 +176,19 @@ class WebSDK extends EventEmitter {
       );
       return response;
     } catch (ex) {
+      console.error(ex);
       return null;
     }
   }
 
-  async _fetchAsync(url: string, configs: Object): Promise<any> {
-    const response = await fetch(url, configs);
+  static async _fetchAsync(url: string, configs: Object): Promise<any> {
+    const response = await window.fetch(url, configs);
     if (response.ok) return response.json();
+    return null;
   }
 
-  async _sleep(timeMs: number = 1) {
-    return new Promise((resolve, reject) => {
+  static async _sleep(timeMs: number = 1) {
+    return new Promise(resolve => {
       setTimeout(() => {
         resolve();
       }, timeMs);
@@ -228,4 +232,10 @@ export default WebSDK;
  * @property {object} extraData - extraData
  * @property {string} extraData.sessionData - session code
  * @property {object} extraData.extraData - Services' extra data
+ */
+
+/**
+ * Session code expired
+ * @event WebSDK#code-expired
+ * @type {object}
  */
