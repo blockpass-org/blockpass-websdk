@@ -1,0 +1,20 @@
+{
+  "name": "website-widget",
+  "version": "1.0.1",
+  "description": "",
+  "main": "embeded.js",
+  "scripts": {
+    "dev": "http-server ./ -c-1",
+    "clean": "rimraf build",
+    "browser-build-prod": "uglifyjs --compress drop_console=true --mangle --output ./build/embeded.prod.js -- embeded.js",
+    "browser-build-dev": "uglifyjs --beautify --output ./build/embeded.dev.js -- embeded.js",
+    "build": "npm run clean && mkdir -p build && npm run browser-build-dev && npm run browser-build-prod"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^0.11.1",
+    "rimraf": "^2.6.2",
+    "uglify-es": "^3.3.9"
+  }
+}

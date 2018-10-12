@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<header>
+  <!-- BLOCKPASS WIDGET SCRIPT -->
+  <script>(function () {
+      const s = document.createElement('script');
+      s.src = '/build/embeded.dev.js'; s.async = true;
+      window.bpWidget = {
+        env: 'local',
+        clientId: 'developer_formpass',
+        serviceName: 'Developer Formpass',
+        refId: 'ref-id-here:' + Date.now(),
+        onSSOComplete: (result, resetFunc) => {
+          console.log('sso-complete', result)
+        }
+      };
+      document.body.appendChild(s);
+    })();</script>
+</header>
+
+<body>
+
+  <div id="widget-bp123"></div>
+
+</body>
+
+</html>
