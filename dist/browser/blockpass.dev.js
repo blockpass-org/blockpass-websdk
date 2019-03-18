@@ -163,7 +163,7 @@ var WebSDK = function (_EventEmitter) {
 
     /**
      * Generate appLink string
-     * Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
+     * Example: blockpass-local://service-register/3rd_service_demo?session=c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
      */
 
   }, {
@@ -198,7 +198,7 @@ var WebSDK = function (_EventEmitter) {
 
                             prefix = APPLINK_ENV[_this2.env];
 
-                            applinkString = prefix + "://sso/" + _this2.clientId + "/" + _this2._currentSessionId;
+                            applinkString = prefix + "://service-register/" + _this2.clientId + "?session=" + _this2._currentSessionId;
                             return _context2.abrupt("break", 10);
 
                           case 6:

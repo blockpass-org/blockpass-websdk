@@ -234,9 +234,13 @@ describe("basic-features", () => {
     webSdk.generateSSOData();
 
     webSdk.getApplink().then(res => {
-      expect(res).toBe("blockpass-local://sso/testClientId/0123");
+      expect(res).toBe(
+        "blockpass-local://service-register/testClientId?session=0123"
+      );
       webSdk.getApplink().then(res => {
-        expect(res).toBe("blockpass-local://sso/testClientId/0123");
+        expect(res).toBe(
+          "blockpass-local://service-register/testClientId?session=0123"
+        );
         done();
       });
     });
