@@ -127,7 +127,7 @@
         });
     }
     function onBlockpassSSoResult(params) {
-        if (window.bpWidget.onSSOComplete) window.bpWidget.onSSOComplete(params);
+        if (window.bpWidget.onSSOComplete) window.bpWidget.onSSOComplete(params, startNewSession);
         $("#container-qrcode").fadeOut();
         $("#loadingComponents").fadeOut(500, function() {
             $("#welcome-container").fadeIn(1e3);

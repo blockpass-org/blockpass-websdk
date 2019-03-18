@@ -96,7 +96,7 @@ class WebSDK extends EventEmitter {
 
   /**
    * Generate appLink string
-   * Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
+   * Example: blockpass-local://service-register/3rd_service_demo?session=c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
    */
   async getApplink(): Promise<?string> {
     return new Promise(async resolve => {
@@ -104,9 +104,9 @@ class WebSDK extends EventEmitter {
       while (true) {
         if (this._currentSessionId) {
           const prefix = APPLINK_ENV[this.env];
-          applinkString = `${prefix}://sso/${this.clientId}/${
-            this._currentSessionId
-          }`;
+          applinkString = `${prefix}://service-register/${
+            this.clientId
+          }?session=${this._currentSessionId}`;
           break;
         }
         await WebSDK._sleep(this.refreshRateMs / 2);
