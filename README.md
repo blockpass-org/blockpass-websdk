@@ -13,7 +13,7 @@ This packages contains:
 1.  Add blockpass-web package via `<script>` tag
 
 ```html
-    <script src="https://cdn.blockpass.org/sdk/v2.0.1/blockpass.dev.js"></script>
+<script src="https://cdn.blockpass.org/sdk/v2.0.1/blockpass.dev.js"></script>
 ```
 
 2.  Init SDK
@@ -22,25 +22,25 @@ This packages contains:
 /*
 Blockpass Clientid
 */
-const clientId = '...'
+const clientId = "...";
 
 /*
 Blockpass Environments:
   - staging: Our testing enviroment (Blockpass partner and tester)
   - prod: Live enviroment of Blockpass
 */
-const env = 'staging|prod'
+const env = "staging|prod";
 
 /*
 Reference Id: Your generated code. Which use to match KycRecord with your userId
 */
-const refId = ''
+const refId = "";
 
 sdk = new window.Blockpass.WebSDK({
   clientId,
   env,
   refreshRateMs: 1000
-})
+});
 ```
 
 3.  Subscribe to SDK events
@@ -52,12 +52,12 @@ function onBlockpassCodeRefresh(params) {
   // demo qrcode images ( using demo online qrserver ).
   // DON'T USE THIS FOR YOUR SERVICE
   document.getElementById(
-    'step1-qr'
+    "step1-qr"
   ).src = `http://api.qrserver.com/v1/create-qr-code/?data=${JSON.stringify({
-    clientId: '...',
+    clientId: "...",
     session: params.session,
     refId
-  })}`
+  })}`;
 }
 
 function onBlockpassProcessing(params) {
@@ -77,13 +77,13 @@ function onBlockpassSessionExpired() {
 }
 
 // Setup events handler
-sdk.on('code-refresh', onBlockpassCodeRefresh)
-sdk.on('sso-processing', onBlockpassProcessing)
-sdk.on('sso-complete', onBlockpassSSoResult)
-sdk.on('code-expired', onBlockpassSessionExpired)
+sdk.on("code-refresh", onBlockpassCodeRefresh);
+sdk.on("sso-processing", onBlockpassProcessing);
+sdk.on("sso-complete", onBlockpassSSoResult);
+sdk.on("code-expired", onBlockpassSessionExpired);
 
 // request for new sso code
-sdk.generateSSOData()
+sdk.generateSSOData();
 ```
 
 ## Development Instalation
@@ -140,7 +140,7 @@ Deconstructor
 #### getApplink
 
 Generate appLink string
-Example: blockpass-local://sso/3rd_service_demo/c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
+Example: blockpass-local://service-register/3rd_service_demo?session=c33ab4f2-c208-4cc0-9adf-e49cccff6d2c
 
 Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)&lt;[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)?>** 
 
