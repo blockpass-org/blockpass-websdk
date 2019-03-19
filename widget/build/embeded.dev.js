@@ -4,7 +4,7 @@
     const loadLib = [];
     if (!window.jQuery) loadLib.push(loadScript("https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"));
     Promise.all(loadLib).then(() => {
-        return Promise.all([ loadScript("https://cdn.blockpass.org/sdk/v2.0.1/blockpass.min.js"), loadScript("https://cdn.blockpass.org/widget/scripts/websdk/jquery-qrcode-0.14.0.min.js") ]);
+        return Promise.all([ loadScript("https://cdn.blockpass.org/sdk/v2.0.3/blockpass.min.js"), loadScript("https://cdn.blockpass.org/widget/scripts/websdk/jquery-qrcode-0.14.0.min.js") ]);
     }).then(() => {
         main();
     }).catch(err => console.error(err));
@@ -108,7 +108,10 @@
     }
     function startNewSession() {
         loadInnerHtml(div);
-        appLinkUrl = sdk.getApplink();
+        sdk.getApplink().then(url => {
+            appLinkUrl = url;
+            window.bpWidget.appLinkUrl = url;
+        });
         $("#service_name").text(window.bpWidget.serviceName);
         sdk.generateSSOData();
     }
@@ -127,7 +130,7 @@
         });
     }
     function onBlockpassSSoResult(params) {
-        if (window.bpWidget.onSSOComplete) window.bpWidget.onSSOComplete(params);
+        if (window.bpWidget.onSSOComplete) window.bpWidget.onSSOComplete(params, startNewSession);
         $("#container-qrcode").fadeOut();
         $("#loadingComponents").fadeOut(500, function() {
             $("#welcome-container").fadeIn(1e3);
