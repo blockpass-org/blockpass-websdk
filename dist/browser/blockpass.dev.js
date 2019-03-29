@@ -53,6 +53,7 @@ var APPLINK_ENV = {
 var DEFAULT_API = {
   local: "http://172.16.0.203:1337",
   dev: "http://172.16.21.165:1337",
+  qa: "https://qa-api.blockpass.org",
   staging: "https://sandbox-api.blockpass.org",
   prod: "https://asia-api.blockpass.org"
 };
