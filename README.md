@@ -110,13 +110,18 @@ $ npm run watch # watch code changes and run scripts automatically
 #### Table of Contents
 
 -   [WebSDK](#websdk)
+    -   [Parameters](#parameters)
     -   [generateSSOData](#generatessodata)
     -   [destroy](#destroy)
     -   [getApplink](#getapplink)
 -   [ConstructorParams](#constructorparams)
+    -   [Properties](#properties)
 -   [WebSDK#code-refresh](#websdkcode-refresh)
+    -   [Properties](#properties-1)
 -   [WebSDK#sso-processing](#websdksso-processing)
+    -   [Properties](#properties-2)
 -   [WebSDK#sso-complete](#websdksso-complete)
+    -   [Properties](#properties-3)
 -   [WebSDK#code-expired](#websdkcode-expired)
 
 ### WebSDK
@@ -125,7 +130,7 @@ $ npm run watch # watch code changes and run scripts automatically
 
 Blockpass WebSDK
 
-**Parameters**
+#### Parameters
 
 -   `configData` **...[ConstructorParams](#constructorparams)** 
 
@@ -152,7 +157,7 @@ Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/
 
 Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
 
-**Properties**
+#### Properties
 
 -   `env` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Deployment env (local|staging|prod).
 -   `clientId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass ClientId (obtain when register with Blockpass platform).
@@ -164,7 +169,7 @@ Client must refresh code after sso failed / timeout
 
 Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
 
-**Properties**
+#### Properties
 
 -   `session` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** sessionID
 
@@ -174,7 +179,7 @@ Session code switch to processing
 
 Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
 
-**Properties**
+#### Properties
 
 -   `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code
 
@@ -184,7 +189,7 @@ Session code switch to processing
 
 Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
 
-**Properties**
+#### Properties
 
 -   `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code (success|failed)
 -   `customData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** customData
