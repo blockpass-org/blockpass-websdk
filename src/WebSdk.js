@@ -205,7 +205,7 @@ export default WebSDK;
 
 /**
  * @typedef {object} ConstructorParams
- * @property {string} baseUrl - Blockpass url.
+ * @property {string} env - Deployment env (local|staging|prod).
  * @property {string} clientId - Blockpass ClientId (obtain when register with Blockpass platform). 
  
  */
@@ -230,9 +230,9 @@ export default WebSDK;
  * @event WebSDK#sso-complete
  * @type {object}
  * @property {string} status - status of session code (success|failed)
- * @property {object} extraData - extraData
- * @property {string} extraData.sessionData - session code
- * @property {object} extraData.extraData - Services' extra data
+ * @property {object} customData - customData
+ * @property {string} customData.sessionData - session code
+ * @property {object} customData.extraData - Services' extra data
  */
 
 /**

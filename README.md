@@ -154,7 +154,7 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 
 **Properties**
 
--   `baseUrl` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass url.
+-   `env` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Deployment env (local|staging|prod).
 -   `clientId` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Blockpass ClientId (obtain when register with Blockpass platform).
 
 ### WebSDK#code-refresh
@@ -187,9 +187,9 @@ Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Globa
 **Properties**
 
 -   `status` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** status of session code (success|failed)
--   `extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** extraData
-    -   `extraData.sessionData` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** session code
-    -   `extraData.extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Services' extra data
+-   `customData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** customData
+    -   `customData.sessionData` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** session code
+    -   `customData.extraData` **[object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Services' extra data
 
 ### WebSDK#code-expired
 
