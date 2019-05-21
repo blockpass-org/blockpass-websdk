@@ -1,13 +1,28 @@
 import nodeFetch from "node-fetch";
-import { WebSDK } from "../src";
 import nork from "nock";
+import { WebSDK } from "../src";
 
 global.fetch = nodeFetch;
 
 const BASE_URL = "http://unit-test";
 const CLIENT_ID = "testClientId";
 
+const BLOCKPASS_API = {
+  generateSessionCode: "/api/3rdService/register/session",
+  getSessionStatus: "/api/3rdService/register/status"
+};
+
 describe("basic-features", () => {
+  it("construct-sdk-error", done => {
+    try {
+      const webSdk = new WebSDK({});
+    } catch (error) {
+      expect(error.message).toBe(
+        "Missing critical config paramaters: clientId"
+      );
+      done();
+    }
+  });
   it("generate-sessioncode", done => {
     const FAKE_SESSION_ID = "0123";
 
@@ -16,9 +31,15 @@ describe("basic-features", () => {
       clientId: CLIENT_ID
     });
 
-    const mockRequest = nork(BASE_URL)
-      .post(`/api/v0.3/service/register/${CLIENT_ID}`, body => true)
-      .reply(200, { session: FAKE_SESSION_ID });
+    // mock code generate
+    nork(BASE_URL)
+      .get(`${BLOCKPASS_API.generateSessionCode}/${CLIENT_ID}`)
+      .reply(200, { status: "success", data: { session: FAKE_SESSION_ID } });
+
+    // mock session status to for websdk graceful shutdown
+    nork(BASE_URL)
+      .get(`${BLOCKPASS_API.getSessionStatus}/${FAKE_SESSION_ID}`)
+      .reply(200, { status: "success", data: { status: "processing" } });
 
     webSdk.on("code-refresh", codeResponse => {
       expect(codeResponse.session).toBe(FAKE_SESSION_ID);
@@ -39,13 +60,13 @@ describe("basic-features", () => {
     });
 
     // mock code generate
-    const mockRequest = nork(BASE_URL)
-      .post(`/api/v0.3/service/register/${CLIENT_ID}`, body => true)
-      .reply(200, { session: FAKE_SESSION_ID });
+    nork(BASE_URL)
+      .get(`${BLOCKPASS_API.generateSessionCode}/${CLIENT_ID}`)
+      .reply(200, { status: "success", data: { session: FAKE_SESSION_ID } });
 
     // 1st time => processing
-    let refreshRequest = nork(BASE_URL)
-      .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID}`)
+    nork(BASE_URL)
+      .get(`${BLOCKPASS_API.getSessionStatus}/${FAKE_SESSION_ID}`)
       .once()
       .reply(200, { status: "success", data: { status: "processing" } });
 
@@ -59,14 +80,14 @@ describe("basic-features", () => {
       expect(response.status).toBe("processing");
 
       // 2nd time => complete
-      refreshRequest = nork(BASE_URL)
-        .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID}`)
+      nork(BASE_URL)
+        .get(`${BLOCKPASS_API.getSessionStatus}/${FAKE_SESSION_ID}`)
         .once()
         .reply(200, {
           status: "success",
           data: {
             status: "success",
-            extraData: {
+            customData: {
               sessionData: FAKE_SESSION_ID,
               extraData: {
                 myNameIs: "bot"
@@ -78,7 +99,7 @@ describe("basic-features", () => {
 
     // calback sso-complete
     webSdk.on("sso-complete", response => {
-      expect(response.extraData.extraData.myNameIs).toBe("bot");
+      expect(response.customData.extraData.myNameIs).toBe("bot");
       webSdk.destroy();
       done();
     });
@@ -96,13 +117,13 @@ describe("basic-features", () => {
     });
 
     // mock code generate
-    const mockRequest = nork(BASE_URL)
-      .post(`/api/v0.3/service/register/${CLIENT_ID}`, body => true)
-      .reply(200, { session: FAKE_SESSION_ID });
+    nork(BASE_URL)
+      .get(`${BLOCKPASS_API.generateSessionCode}/${CLIENT_ID}`)
+      .reply(200, { status: "success", data: { session: FAKE_SESSION_ID } });
 
     // 1st time => processing
-    let refreshRequest = nork(BASE_URL)
-      .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID}`)
+    nork(BASE_URL)
+      .get(`${BLOCKPASS_API.getSessionStatus}/${FAKE_SESSION_ID}`)
       .once()
       .reply(200, { status: "success", data: { status: "processing" } });
 
@@ -116,14 +137,14 @@ describe("basic-features", () => {
       expect(response.status).toBe("processing");
 
       // 2nd time => complete
-      refreshRequest = nork(BASE_URL)
-        .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID}`)
+      nork(BASE_URL)
+        .get(`${BLOCKPASS_API.getSessionStatus}/${FAKE_SESSION_ID}`)
         .once()
         .reply(200, {
           status: "success",
           data: {
             status: "failed",
-            extraData: {
+            customData: {
               sessionData: FAKE_SESSION_ID,
               extraData: {
                 err: 403,
@@ -137,7 +158,7 @@ describe("basic-features", () => {
     // calback sso-complete
     webSdk.on("sso-complete", response => {
       expect(response.status).toBe("failed");
-      expect(response.extraData.extraData.err).toBe(403);
+      expect(response.customData.extraData.err).toBe(403);
       webSdk.destroy();
       done();
     });
@@ -159,40 +180,52 @@ describe("basic-features", () => {
     let codeResponseCount = 0;
 
     // mock code generate
-    const mockRequest = nork(BASE_URL)
-      .post(`/api/v0.3/service/register/${CLIENT_ID}`, body => true)
+    nork(BASE_URL)
+      .get(`${BLOCKPASS_API.generateSessionCode}/${CLIENT_ID}`)
       .twice()
       .reply(200, _ => ({
-        session: codeResponseSequence[codeResponseCount++]
+        status: "success",
+        data: {
+          session: codeResponseSequence[codeResponseCount++]
+        }
       }));
 
     // 1st time => processing
-    let refreshRequest = nork(BASE_URL)
-      .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID_NEW}`)
-      .once()
+    nork(BASE_URL)
+      .get(`${BLOCKPASS_API.getSessionStatus}/${FAKE_SESSION_ID}`)
       .reply(200, { status: "success", data: { status: "processing" } });
 
     // callback code-refresh
     let count = 0;
     webSdk.on("code-refresh", codeResponse => {
       const shouldBe = count === 0 ? FAKE_SESSION_ID : FAKE_SESSION_ID_NEW;
-      count++;
       expect(codeResponse.session).toBe(shouldBe);
+      if (count === 1) {
+        nork(BASE_URL)
+          .get(`${BLOCKPASS_API.getSessionStatus}/${FAKE_SESSION_ID_NEW}`)
+          .once()
+          .reply(200, {
+            status: "success",
+            data: {
+              status: "processing"
+            }
+          });
+      }
+      count += 1;
     });
 
     // callback code-processing ( 1 time )
     webSdk.once("sso-processing", response => {
       expect(response.status).toBe("processing");
 
-      // 2nd time => complete
-      refreshRequest = nork(BASE_URL)
-        .get(`/api/v0.3/service/registerPolling/${FAKE_SESSION_ID_NEW}`)
+      nork(BASE_URL)
+        .get(`${BLOCKPASS_API.getSessionStatus}/${FAKE_SESSION_ID_NEW}`)
         .once()
         .reply(200, {
           status: "success",
           data: {
             status: "success",
-            extraData: {
+            customData: {
               sessionData: FAKE_SESSION_ID_NEW,
               extraData: {
                 myNameIs: "bot"
@@ -204,7 +237,7 @@ describe("basic-features", () => {
 
     // calback sso-complete
     webSdk.on("sso-complete", response => {
-      expect(response.extraData.sessionData).toBe(FAKE_SESSION_ID_NEW);
+      expect(response.customData.sessionData).toBe(FAKE_SESSION_ID_NEW);
       webSdk.destroy();
       done();
     });
@@ -213,9 +246,9 @@ describe("basic-features", () => {
     webSdk.generateSSOData();
 
     // 2nd time call => 1st code should be override
-    setTimeout(_ => {
+    setTimeout(() => {
       webSdk.generateSSOData();
-    }, 1);
+    }, 100);
   });
 
   it("applink-generate", done => {
@@ -227,9 +260,14 @@ describe("basic-features", () => {
       env: "local"
     });
 
-    const mockRequest = nork(BASE_URL)
-      .post(`/api/v0.3/service/register/${CLIENT_ID}`, body => true)
-      .reply(200, { session: FAKE_SESSION_ID });
+    nork(BASE_URL)
+      .get(`${BLOCKPASS_API.generateSessionCode}/${CLIENT_ID}`)
+      .reply(200, { status: "sucess", data: { session: FAKE_SESSION_ID } });
+
+    nork(BASE_URL)
+      .get(`${BLOCKPASS_API.getSessionStatus}/${FAKE_SESSION_ID}`)
+      .once()
+      .reply(200, { status: "success", data: { status: "processing" } });
 
     webSdk.generateSSOData();
 
@@ -237,8 +275,8 @@ describe("basic-features", () => {
       expect(res).toBe(
         "blockpass-local://service-register/testClientId?session=0123"
       );
-      webSdk.getApplink().then(res => {
-        expect(res).toBe(
+      webSdk.getApplink().then(res2 => {
+        expect(res2).toBe(
           "blockpass-local://service-register/testClientId?session=0123"
         );
         done();
